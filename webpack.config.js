@@ -6,11 +6,17 @@ module.exports = [
       filename: './app.js',
     },
     mode: 'production',
+    node: {
+      fs: 'empty',
+      net: 'empty',
+    },
+    target: 'node',
   },
   {
     name: 'dev',
     entry: {
       app: './src/index.js',
+      server: './src/server.js',
       spec: './spec/indexSpec.js',
     },
     output: {
@@ -18,6 +24,11 @@ module.exports = [
       path: `${__dirname}/dist`,
     },
     mode: 'development',
+    node: {
+      fs: 'empty',
+      net: 'empty',
+    },
+    target: 'node',
   },
   {
     name: 'test',
@@ -29,5 +40,10 @@ module.exports = [
       path: `${__dirname}/dist`,
     },
     mode: 'development',
+    node: {
+      fs: 'empty',
+      net: 'empty',
+    },
+    target: 'node',
   },
 ];

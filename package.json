@@ -10,6 +10,7 @@
     "dev": "npm build-dev -- --watch",
     "docker:clean": "docker rmi nodejs-esm",
     "docker:enter": "docker exec -it app bash",
+    "docker:server": "docker exec app npm run server",
     "docker:start": "docker-compose up",
     "docker:stop": "docker-compose down",
     "format": "prettier --single-quote --trailing-comma=es5 --write ./**/*.{js,json}",
@@ -17,6 +18,7 @@
     "lint": "eslint --fix ./src",
     "precommit": "lint-staged",
     "prepush": "npm test",
+    "server": "nodemon ./dist/server.js",
     "start": "npm run build-dev -- --watch & nodemon --exec npm run jasmine",
     "test": "npm run build-test && npm run jasmine",
     "watch": "nodemon ./dist/app.js"
