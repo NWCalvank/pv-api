@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY webpack.config.js ./
+COPY index.js ./
 
 RUN npm install
 

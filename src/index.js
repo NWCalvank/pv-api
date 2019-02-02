@@ -1,4 +1,6 @@
-import { main } from './first.js';
+// Import all action handlers
+import first from './first.js';
+import hello from './second.js';
 
-// TODO: Find a better module import/export pattern
-export const render = main;
+// Export all action handlers
+export { first, hello };

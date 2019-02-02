@@ -22,6 +22,6 @@ const setUpApp = functions => {
 
 // Create the Express app with all of the Cloud Function handlers
 // and add it as a listner on our Cloud Function emulation server.
-const myApp = setUpApp(require('./index.js'));
+const myApp = setUpApp(require('../index.js'));
 const server = http.createServer(myApp);
 server.listen(port);
