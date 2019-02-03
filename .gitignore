@@ -6,6 +6,8 @@
 # Development
 node_modules
 dist
+build.zip
+.env
 *.swp
 .vimrc
 

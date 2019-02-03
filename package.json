@@ -7,6 +7,7 @@
     "build": "webpack --config-name=prod",
     "build-dev": "webpack --config-name=dev",
     "build-test": "webpack --config-name=test",
+    "deploy": "npm run zip",
     "dev": "npm build-dev -- --watch",
     "docker:clean": "docker rmi nodejs-esm",
     "docker:enter": "docker exec -it app bash",
@@ -16,12 +17,15 @@
     "format": "prettier --single-quote --trailing-comma=es5 --write ./**/*.{js,json}",
     "jasmine": "jasmine ./dist/spec.js",
     "lint": "eslint --fix ./src",
+    "postdeploy": "rm build.zip",
     "precommit": "lint-staged",
+    "predeploy": "mkdir -p dist && docker cp app:/app/dist/actions.js ./dist/actions.js",
     "prepush": "npm test",
     "server": "nodemon ./dist/server.js",
     "start": "npm run build-dev -- --watch & nodemon --exec npm run jasmine",
     "test": "npm run build-test && npm run jasmine",
-    "watch": "nodemon ./dist/app.js"
+    "watch": "nodemon ./dist/app.js",
+    "zip": "zip -r build.zip index.js package.json ./src"
   },
   "lint-staged": {
     "*.js": [
