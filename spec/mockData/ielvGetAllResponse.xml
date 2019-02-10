@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ielv>
+  <title>Mock Data for IELV</title>
+  <description>Feed index to IELV villas open to rental</description>
+  <link>http://www.mockpropertydata.com/</link>
+<villa>
+  <id>1234</id>
+  <title>Mock Property</title>
+  <updated_at>2019-02-06 22:04:47 +0100</updated_at>
+  <description></description>
+  <link>http://www.mockpropertydata.com/estate-details/villa/weekly-rental/mock-property/foo-bar</link>
+</villa>
+</ielv>

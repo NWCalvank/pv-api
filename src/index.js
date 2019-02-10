@@ -1,6 +1,5 @@
 // Import all action handlers
-import first from './first.js';
-import hello from './second.js';
+import ielv from './ielv';
 
 // Export all action handlers
-export { first, hello };
+export { ielv };

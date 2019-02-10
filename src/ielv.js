@@ -1,11 +1,19 @@
+import convert from 'xml-to-json-promise';
 import dotenv from 'dotenv';
 
-import apiClient from './api/client';
+import { ielvClient } from './api/client';
 
 dotenv.config();
 
+export const getAllProperties = () =>
+  ielvClient
+    .get('/villas.xml')
+    .then(({ data }) => convert.xmlDataToJSON(data))
+    .then(({ ielv: { villa } }) => villa)
+    .catch(console.log);
+
 export default function(req, res) {
-  if (req.header('Authorization') !== process.env.API_KEY) {
+  if (req.header('Authorization') !== process.env.IELV_API_KEY) {
     const reason = 'Invalid Authorization header';
     // HTTP Response for incoming request
     res.send({ status: 401, status_message: 'Unauthorized', message: reason });
@@ -18,9 +26,9 @@ export default function(req, res) {
   res.send({
     status: 200,
     status_message: 'OK',
-    message: 'Function first successfully invoked',
+    message: 'Function IELV successfully invoked',
   });
 
   // Promise response for function invocation
-  return apiClient.get('/properties/');
+  return getAllProperties();
 }
