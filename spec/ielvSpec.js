@@ -1,19 +1,30 @@
 import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter';
 
-import handler, { getAllProperties } from '../src/ielv';
+import handler, { getAllProperties, getPropertyDetails } from '../src/ielv';
 import { ielvClient } from '../src/api/client';
+
+import ielvProperty from './mockData/ielv/property.json';
+
+const MOCK_PROPERTY_ID = 1234;
 
 // Initialize the custom axios instance
 const mock = new MockAdapter(ielvClient);
 
 const ielvGetAllResponse = fs.readFileSync(
-  `/app/spec/mockData/ielvGetAllResponse.xml`,
+  `/app/spec/mockData/ielv/getAllResponse.xml`,
+  'utf8'
+);
+const ielvGetPropertyDetailsResponse = fs.readFileSync(
+  `/app/spec/mockData/ielv/getPropertyDetailsResponse.xml`,
   'utf8'
 );
 
 // Mock Outgoing API Requests/Responses
 mock.onGet('/villas.xml').reply(200, ielvGetAllResponse);
+mock
+  .onGet(`/villas.xml/${MOCK_PROPERTY_ID}`)
+  .reply(200, ielvGetPropertyDetailsResponse);
 
 // Mock Express HTTP Requests/Responses
 const mockHeader = header => key => header[key];
@@ -49,6 +60,15 @@ describe('handler', () => {
   });
 
   // Test Function Invocation
+  it('should return a promise of all property details', () => {
+    const req = reqBuilder(process.env.IELV_API_KEY);
+    const res = expectedResBuilder(200, 'OK');
+    const allPropertyDetails = [ielvProperty];
+    handler(req, res).then(response => {
+      expect(response).toEqual(allPropertyDetails);
+    });
+  });
+
   it('should return a rejected promise when provided with invalid auth', () => {
     const req = reqBuilder('aklsjhdlakjsdhasdsskjdh');
     handler(req, mockRes).catch(() => {
@@ -71,6 +91,14 @@ describe('getAllProperties', () => {
           ],
         },
       ]);
+    });
+  });
+});
+
+describe('getPropertyDetails', () => {
+  it('should call the IELV API with a property ID and return the response', () => {
+    getPropertyDetails(MOCK_PROPERTY_ID).then(data => {
+      expect(data).toEqual(ielvProperty);
     });
   });
 });

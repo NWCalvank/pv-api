@@ -1,0 +1,19 @@
+{
+  "uri": "https://api.myvr.com/v1/rooms/room1234/",
+  "id": "room1234",
+  "key": "room1234",
+  "externalId": null,
+  "property": {
+    "name": "AAA  PROPERTY",
+    "uri": "https://api.myvr.com/v1/properties/property1234/",
+    "slug": "aaa-property",
+    "externalId": "IELV_1234",
+    "key": "property1234",
+    "id": "property1234"
+  },
+  "type": "bedroom",
+  "bedCount": 0,
+  "beds": [],
+  "created": "2019-02-11T01:10:33.900095Z",
+  "modified": "2019-02-11T01:10:33.936024Z"
+}

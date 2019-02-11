@@ -12,6 +12,23 @@ export const getAllProperties = () =>
     .then(({ ielv: { villa } }) => villa)
     .catch(console.log);
 
+export const getPropertyDetails = id =>
+  ielvClient
+    .get(`/villas.xml/${id}`)
+    .then(({ data }) => convert.xmlDataToJSON(data))
+    .then(
+      ({
+        ielv: {
+          villa: [property],
+        },
+      }) => property
+    )
+    .catch(console.log);
+
+// TODO: Possibly export and add coverage
+const getAllPropertyDetails = properties =>
+  Promise.all(properties.map(({ id: [ielvId] }) => getPropertyDetails(ielvId)));
+
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.IELV_API_KEY) {
     const reason = 'Invalid Authorization header';
@@ -30,5 +47,5 @@ export default function(req, res) {
   });
 
   // Promise response for function invocation
-  return getAllProperties();
+  return getAllProperties().then(getAllPropertyDetails);
 }

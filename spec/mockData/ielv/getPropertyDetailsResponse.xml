@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ielv>
+  <title>Mock Data for IELV</title>
+  <description>Feed index to IELV villas open to rental</description>
+  <link>http://www.mockpropertydata.com/</link>
+<villa>
+  <id>1234</id>
+  <title>Mock Property</title>
+  <updated_at>2019-02-06 22:04:47 +0100</updated_at>
+  <description>Remind me to thank John for a lovely weekend. What do they got in there? King Kong? Hey, take a look at the earthlings. Goodbye! Yes, Yes, without the oops! Yeah, but John, if The Pirates of the Caribbean breaks down, the pirates don’t eat the tourists.</description>
+  <link>http://www.mockpropertydata.com/estate-details/villa/weekly-rental/mock-property/foo-bar</link>
+  <locations>
+    <location>FooTown</location>
+    <location>Nearest beach: FooBeach</location>
+    <location>BarCity: 5 min.</location>
+    <location>Restaurant: 5 min.</location>
+    <location>Supermarket: 5 min.</location>
+    <location>Airport: 10 min.</location>
+  </locations>
+  <latitude>17.8859861111111</latitude>
+  <longitude>-62.8387194444445</longitude>
+  <bedrooms>4</bedrooms>
+  <bathrooms>4</bathrooms>
+  <max_occupancy>8</max_occupancy>
+  <pools count="1">
+    <pool>
+      <description>13.1 x 59.1 ft., heated</description>
+    </pool>
+  </pools>
+  <facilities>
+    <facility>fitness</facility>
+    <facility>TV</facility>
+    <facility>DVD</facility>
+    <facility>Wi-Fi</facility>
+    <facility>CD</facility>
+    <facility>VCR</facility>
+    <facility>French satellite</facility>
+    <facility>US satellite</facility>
+    <facility>iron and ironing board</facility>
+    <facility>gas barbecue</facility>
+    <facility>* Fitness Room: stepper, treadmill, shots, A/C.</facility>
+  </facilities>
+  <services>
+    <service>housekeeper every day except Sunday and public holidays</service>
+    <service>pool maintenance</service>
+    <service>gardener</service>
+    <service>household linen</service>
+    <service>bath towels</service>
+    <service>beach towels</service>
+    <service>* 2019-2020
+- Continental breakfast included every days excepted Sunday and Public Holidays</service>
+  </services>
+  <restrictions>
+    <restriction>Children min age:12 years old</restriction>
+    <restriction>Pets: unauthorized</restriction>
+    <restriction>* Children under request.</restriction>
+  </restrictions>
+  <photos count="51">
+    <photo index="1" title="" height="1200" width="1920">https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg</photo>
+    <photo index="2" title="" height="1200" width="1920">https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg</photo>
+  </photos>
+  <rooms>
+    <room type="Living room" index="1">
+      <view>Ocean</view>
+      <equipment>fan</equipment>
+      <other>* iPod Dock</other>
+    </room>
+    <room type="Kitchen" index="1">
+      <equipped_for>10 people</equipped_for>
+      <equipment>fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher</equipment>
+      <other>* Ice maker
+* Nespresso coffee machine</other>
+    </room>
+    <room type="Bedroom" index="1">
+      <view>Garden</view>
+      <bed_size>King 6.56 &#215; 6.56</bed_size>
+      <equipment>air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower</equipment>
+      <other>* 2 dressings
+* iPod Dock
+* Dish Network</other>
+    </room>
+    <room type="Bedroom" index="2">
+      <view>Ocean</view>
+      <bed_size>King 6.56 &#215; 6.56</bed_size>
+      <equipment>air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower</equipment>
+      <other>* Separated bungalow
+* Private terrace
+
+* I pod dock</other>
+    </room>
+    <room type="Bedroom" index="3">
+      <view>Ocean</view>
+      <bed_size>King 6.56 &#215; 6.56</bed_size>
+      <equipment>air conditioning, fan, mosquito net, safe, bathroom with shower</equipment>
+      <other>* iPod Dock
+* Windows looking into the pool</other>
+    </room>
+    <room type="Bedroom" index="4">
+      <view>Garden</view>
+      <bed_size>King or 2 Twins beds 6.56 &#215; 6.56</bed_size>
+      <equipment>air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, bathroom with shower</equipment>
+    </room>
+  </rooms>
+  <prices>
+    <price from="2019-01-06" to="2019-04-16" name="High Season 2019">
+      <bedroom_count bedroom="1">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;30,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;35,000</bedroom_count>
+    </price>
+    <price from="2019-04-16" to="2019-11-23" name="Low Season 2019">
+      <bedroom_count bedroom="1">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2019-11-23" to="2019-12-01" name="Thanksgiving 2019">
+      <bedroom_count bedroom="1">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2019-12-01" to="2019-12-15" name="Low Season 2019">
+      <bedroom_count bedroom="1">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2019-12-15" to="2020-01-11" name="Christmas 2019 - New Year 2020">
+      <bedroom_count bedroom="1">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;90,000</bedroom_count>
+    </price>
+    <price from="2020-01-11" to="2020-04-16" name="High Season 2020">
+      <bedroom_count bedroom="1">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;30,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;35,000</bedroom_count>
+    </price>
+    <price from="2020-04-16" to="2020-11-21" name="Low Season 2020">
+      <bedroom_count bedroom="1">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2020-11-21" to="2020-11-29" name="Thanksgiving 2020">
+      <bedroom_count bedroom="1">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;25,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2020-11-29" to="2020-12-15" name="Low Season 2020">
+      <bedroom_count bedroom="1">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;20,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;25,000</bedroom_count>
+    </price>
+    <price from="2020-12-15" to="2021-01-11" name="Christmas 2020 - New Year 2021">
+      <bedroom_count bedroom="1">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="2">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="3">$&#160;90,000</bedroom_count>
+      <bedroom_count bedroom="4">$&#160;90,000</bedroom_count>
+    </price>
+    <notice>Please note the prices above do not include 10% service charge and 5% tourism tax.</notice>
+  </prices>
+  <availability>
+    <period from="2018-12-29" to="2019-01-11">
+      <status>Reserved</status>
+    </period>
+    <period from="2019-01-12" to="2019-01-14">
+      <status>Free</status>
+    </period>
+    <period from="2019-01-15" to="2019-01-20">
+      <status>Reserved</status>
+    </period>
+    <period from="2019-01-21" to="2019-01-24">
+      <status>Free</status>
+    </period>
+  </availability>
+</villa>
+</ielv>

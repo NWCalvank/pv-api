@@ -1,0 +1,552 @@
+{
+  "id": ["1234"],
+  "title": ["Mock Property"],
+  "updated_at": ["2019-02-06 22:04:47 +0100"],
+  "description": [
+    "Remind me to thank John for a lovely weekend. What do they got in there? King Kong? Hey, take a look at the earthlings. Goodbye! Yes, Yes, without the oops! Yeah, but John, if The Pirates of the Caribbean breaks down, the pirates don’t eat the tourists."
+  ],
+  "link": [
+    "http://www.mockpropertydata.com/estate-details/villa/weekly-rental/mock-property/foo-bar"
+  ],
+  "locations": [
+    {
+      "location": [
+        "FooTown",
+        "Nearest beach: FooBeach",
+        "BarCity: 5 min.",
+        "Restaurant: 5 min.",
+        "Supermarket: 5 min.",
+        "Airport: 10 min."
+      ]
+    }
+  ],
+  "latitude": ["17.8859861111111"],
+  "longitude": ["-62.8387194444445"],
+  "bedrooms": ["4"],
+  "bathrooms": ["4"],
+  "max_occupancy": ["8"],
+  "pools": [
+    {
+      "$": {
+        "count": "1"
+      },
+      "pool": [
+        {
+          "description": ["13.1 x 59.1 ft., heated"]
+        }
+      ]
+    }
+  ],
+  "facilities": [
+    {
+      "facility": [
+        "fitness",
+        "TV",
+        "DVD",
+        "Wi-Fi",
+        "CD",
+        "VCR",
+        "French satellite",
+        "US satellite",
+        "iron and ironing board",
+        "gas barbecue",
+        "* Fitness Room: stepper, treadmill, shots, A/C."
+      ]
+    }
+  ],
+  "services": [
+    {
+      "service": [
+        "housekeeper every day except Sunday and public holidays",
+        "pool maintenance",
+        "gardener",
+        "household linen",
+        "bath towels",
+        "beach towels",
+        "* 2019-2020\n- Continental breakfast included every days excepted Sunday and Public Holidays"
+      ]
+    }
+  ],
+  "restrictions": [
+    {
+      "restriction": [
+        "Children min age:12 years old",
+        "Pets: unauthorized",
+        "* Children under request."
+      ]
+    }
+  ],
+  "photos": [
+    {
+      "$": {
+        "count": "51"
+      },
+      "photo": [
+        {
+          "_": "https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg",
+          "$": {
+            "index": "1",
+            "title": "",
+            "height": "1200",
+            "width": "1920"
+          }
+        },
+        {
+          "_": "https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg",
+          "$": {
+            "index": "2",
+            "title": "",
+            "height": "1200",
+            "width": "1920"
+          }
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "room": [
+        {
+          "$": {
+            "type": "Living room",
+            "index": "1"
+          },
+          "view": ["Ocean"],
+          "equipment": ["fan"],
+          "other": ["* iPod Dock"]
+        },
+        {
+          "$": {
+            "type": "Kitchen",
+            "index": "1"
+          },
+          "equipped_for": ["10 people"],
+          "equipment": [
+            "fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher"
+          ],
+          "other": ["* Ice maker\n* Nespresso coffee machine"]
+        },
+        {
+          "$": {
+            "type": "Bedroom",
+            "index": "1"
+          },
+          "view": ["Garden"],
+          "bed_size": ["King 6.56 × 6.56"],
+          "equipment": [
+            "air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower"
+          ],
+          "other": ["* 2 dressings\n* iPod Dock\n* Dish Network"]
+        },
+        {
+          "$": {
+            "type": "Bedroom",
+            "index": "2"
+          },
+          "view": ["Ocean"],
+          "bed_size": ["King 6.56 × 6.56"],
+          "equipment": [
+            "air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower"
+          ],
+          "other": ["* Separated bungalow\n* Private terrace\n\n* I pod dock"]
+        },
+        {
+          "$": {
+            "type": "Bedroom",
+            "index": "3"
+          },
+          "view": ["Ocean"],
+          "bed_size": ["King 6.56 × 6.56"],
+          "equipment": [
+            "air conditioning, fan, mosquito net, safe, bathroom with shower"
+          ],
+          "other": ["* iPod Dock\n* Windows looking into the pool"]
+        },
+        {
+          "$": {
+            "type": "Bedroom",
+            "index": "4"
+          },
+          "view": ["Garden"],
+          "bed_size": ["King or 2 Twins beds 6.56 × 6.56"],
+          "equipment": [
+            "air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, bathroom with shower"
+          ]
+        }
+      ]
+    }
+  ],
+  "prices": [
+    {
+      "price": [
+        {
+          "$": {
+            "from": "2019-01-06",
+            "to": "2019-04-16",
+            "name": "High Season 2019"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 30,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 35,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2019-04-16",
+            "to": "2019-11-23",
+            "name": "Low Season 2019"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2019-11-23",
+            "to": "2019-12-01",
+            "name": "Thanksgiving 2019"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2019-12-01",
+            "to": "2019-12-15",
+            "name": "Low Season 2019"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2019-12-15",
+            "to": "2020-01-11",
+            "name": "Christmas 2019 - New Year 2020"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2020-01-11",
+            "to": "2020-04-16",
+            "name": "High Season 2020"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 30,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 35,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2020-04-16",
+            "to": "2020-11-21",
+            "name": "Low Season 2020"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2020-11-21",
+            "to": "2020-11-29",
+            "name": "Thanksgiving 2020"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2020-11-29",
+            "to": "2020-12-15",
+            "name": "Low Season 2020"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 20,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 25,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        },
+        {
+          "$": {
+            "from": "2020-12-15",
+            "to": "2021-01-11",
+            "name": "Christmas 2020 - New Year 2021"
+          },
+          "bedroom_count": [
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "1"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "2"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "3"
+              }
+            },
+            {
+              "_": "$ 90,000",
+              "$": {
+                "bedroom": "4"
+              }
+            }
+          ]
+        }
+      ],
+      "notice": [
+        "Please note the prices above do not include 10% service charge and 5% tourism tax."
+      ]
+    }
+  ],
+  "availability": [
+    {
+      "period": [
+        {
+          "$": {
+            "from": "2018-12-29",
+            "to": "2019-01-11"
+          },
+          "status": ["Reserved"]
+        },
+        {
+          "$": {
+            "from": "2019-01-12",
+            "to": "2019-01-14"
+          },
+          "status": ["Free"]
+        },
+        {
+          "$": {
+            "from": "2019-01-15",
+            "to": "2019-01-20"
+          },
+          "status": ["Reserved"]
+        },
+        {
+          "$": {
+            "from": "2019-01-21",
+            "to": "2019-01-24"
+          },
+          "status": ["Free"]
+        }
+      ]
+    }
+  ]
+}
