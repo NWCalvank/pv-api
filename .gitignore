@@ -10,6 +10,7 @@ build.zip
 .env
 *.swp
 .vimrc
+.nvimrc
 
 # Icon must end with two \r
 Icon

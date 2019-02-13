@@ -4,7 +4,7 @@
   "key": "room1234",
   "externalId": null,
   "property": {
-    "name": "AAA  PROPERTY",
+    "name": "Mock Property",
     "uri": "https://api.myvr.com/v1/properties/property1234/",
     "slug": "aaa-property",
     "externalId": "IELV_1234",
