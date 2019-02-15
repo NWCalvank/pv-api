@@ -34,7 +34,7 @@ export const updateProperty = ({
   // POST new properties? Is that possible?
 
   // PUT all details (sans bedrooms) into main description section
-  return myVRClient
+  const description = myVRClient
     .put(`/properties/${externalId}/`, {
       // required
       name,
@@ -43,9 +43,18 @@ export const updateProperty = ({
       // becomes null if not set explicitly
       externalId,
     })
-    .then(({ data }) => data);
+    .then(({ data }) => data)
+    .catch(console.log);
 
-  // POST / PUT bedrooms
+  // POST new bedrooms
+  const bedrooms = myVRClient
+    .post('/rooms/', {
+      property: externalId,
+    })
+    .then(({ data }) => data)
+    .catch(console.log);
+
+  return Promise.all([description, bedrooms]);
 };
 
 // TODO: Possibly export and add coverage

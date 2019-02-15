@@ -10,6 +10,7 @@ import { ielvClient, myVRClient } from '../src/api/client';
 
 import ielvProperty from './mockData/ielv/property.json';
 import myVRProperty from './mockData/myvr/property.json';
+import myVRRoom from './mockData/myvr/room.json';
 
 const MOCK_PROPERTY_ID = 1234;
 
@@ -38,6 +39,8 @@ const tmpProperty = Object.assign(myVRProperty, {
 mockMyVRClient
   .onPut(`/properties/IELV_${MOCK_PROPERTY_ID}/`)
   .reply(200, tmpProperty);
+
+mockMyVRClient.onPost(`/rooms/`).reply(200, myVRRoom);
 
 // Mock Express HTTP Requests/Responses
 const mockHeader = header => key => header[key];
@@ -119,7 +122,7 @@ describe('getPropertyDetails', () => {
 describe('updateProperty', () => {
   it('should call the MyVR API with a payload and return the updated property', () => {
     updateProperty(ielvProperty).then(data => {
-      expect(data).toEqual(tmpProperty);
+      expect(data).toEqual([tmpProperty, myVRRoom]);
     });
   });
 });
