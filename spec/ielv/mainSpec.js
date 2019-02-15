@@ -1,23 +1,15 @@
 import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter';
 
-import handler, {
-  getAllProperties,
-  getPropertyDetails,
-  updateProperty,
-} from '../src/ielv';
-import { ielvClient, myVRClient } from '../src/api/client';
+import handler from '../../src/ielv/main';
+import { ielvClient, myVRClient } from '../../src/api/client';
 
-import ielvProperty from './mockData/ielv/property.json';
-import myVRProperty from './mockData/myvr/property.json';
-import myVRRoom from './mockData/myvr/room.json';
+// Mock JSON Response Data
+import ielvProperty from '../mockData/ielv/property.json';
+import myVRProperty from '../mockData/myvr/property.json';
+import myVRRoom from '../mockData/myvr/room.json';
 
-const MOCK_PROPERTY_ID = 1234;
-
-// Initialize the custom axios instance
-const mockIelvClient = new MockAdapter(ielvClient);
-const mockMyVRClient = new MockAdapter(myVRClient);
-
+// Mock XML Response Data
 const ielvGetAllResponse = fs.readFileSync(
   `/app/spec/mockData/ielv/getAllResponse.xml`,
   'utf8'
@@ -27,12 +19,18 @@ const ielvGetPropertyDetailsResponse = fs.readFileSync(
   'utf8'
 );
 
-// Mock Outgoing API Requests/Responses
+// Initialize the custom axios instance
+const MOCK_PROPERTY_ID = 1234;
+const mockIelvClient = new MockAdapter(ielvClient);
+const mockMyVRClient = new MockAdapter(myVRClient);
+
+// GET Stubs
 mockIelvClient.onGet('/villas.xml').reply(200, ielvGetAllResponse);
 mockIelvClient
   .onGet(`/villas.xml/${MOCK_PROPERTY_ID}`)
   .reply(200, ielvGetPropertyDetailsResponse);
 
+// PUT Stubs
 const tmpProperty = Object.assign(myVRProperty, {
   description: ielvProperty.title[0],
 });
@@ -40,6 +38,7 @@ mockMyVRClient
   .onPut(`/properties/IELV_${MOCK_PROPERTY_ID}/`)
   .reply(200, tmpProperty);
 
+// POST Stubs
 mockMyVRClient.onPost(`/rooms/`).reply(200, myVRRoom);
 
 // Mock Express HTTP Requests/Responses
@@ -89,40 +88,6 @@ describe('handler', () => {
     const req = reqBuilder('aklsjhdlakjsdhasdsskjdh');
     handler(req, mockRes).catch(() => {
       expect(true);
-    });
-  });
-});
-
-describe('getAllProperties', () => {
-  it('should call the IELV API and return the response', () => {
-    getAllProperties().then(data => {
-      expect(data).toEqual([
-        {
-          id: ['1234'],
-          title: ['Mock Property'],
-          updated_at: ['2019-02-06 22:04:47 +0100'],
-          description: [''],
-          link: [
-            'http://www.mockpropertydata.com/estate-details/villa/weekly-rental/mock-property/foo-bar',
-          ],
-        },
-      ]);
-    });
-  });
-});
-
-describe('getPropertyDetails', () => {
-  it('should call the IELV API with a property ID and return the response', () => {
-    getPropertyDetails(MOCK_PROPERTY_ID).then(data => {
-      expect(data).toEqual(ielvProperty);
-    });
-  });
-});
-
-describe('updateProperty', () => {
-  it('should call the MyVR API with a payload and return the updated property', () => {
-    updateProperty(ielvProperty).then(data => {
-      expect(data).toEqual([tmpProperty, myVRRoom]);
     });
   });
 });
