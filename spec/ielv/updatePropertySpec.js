@@ -2,6 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 import updateProperty, {
   NOT_FOUND,
+  buildDescription,
   getProperty,
   putDescription,
   postProperty,
@@ -19,13 +20,17 @@ const MOCK_PROPERTY_NAME = 'Mock Property';
 const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
 
 // Resulting Mock Data
-const updatedDescription = ielvProperty.description[0];
+const [ielvDescription] = ielvProperty.description;
+const ielvLocations = ielvProperty.locations;
+const ielvFacilities = ielvProperty.facilities;
+const ielvServices = ielvProperty.services;
+const ielvRestrictions = ielvProperty.restrictions;
 // Updated Details - No Bedrooms
-const tmpProperty = { ...myVRProperty, description: updatedDescription };
+const tmpProperty = { ...myVRProperty, description: ielvDescription };
 // Fully-updated Property
 const updatedProperty = {
   ...myVRProperty,
-  description: updatedDescription,
+  description: ielvDescription,
   bedCount: 1,
   beds: [],
 };
@@ -99,7 +104,7 @@ describe('putDescription', () => {
 
     putDescription({
       name: MOCK_PROPERTY_NAME,
-      description: updatedDescription,
+      description: ielvDescription,
       externalId: MOCK_PROPERTY_EXTERNAL_ID,
     }).then(data => {
       expect(data).toEqual(updatedProperty);
@@ -114,7 +119,7 @@ describe('putDescription', () => {
 
     putDescription({
       name: MOCK_PROPERTY_NAME,
-      description: updatedDescription,
+      description: ielvDescription,
       externalId: `${MOCK_PROPERTY_EXTERNAL_ID}`,
     }).then(data => {
       expect(data).toEqual(NOT_FOUND);
@@ -129,7 +134,7 @@ describe('postProperty', () => {
 
     postProperty({
       name: MOCK_PROPERTY_NAME,
-      description: updatedDescription,
+      description: ielvDescription,
       externalId: MOCK_PROPERTY_EXTERNAL_ID,
     }).then(data => {
       expect(data).toEqual(updatedProperty);
@@ -142,10 +147,54 @@ describe('postProperty', () => {
 
     postProperty({
       name: MOCK_PROPERTY_NAME,
-      description: updatedDescription,
+      description: ielvDescription,
       externalId: `${MOCK_PROPERTY_EXTERNAL_ID}`,
     }).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
+  });
+});
+
+describe('buildDescription', () => {
+  const builtDescription = buildDescription({
+    description: ielvDescription,
+    locations: ielvLocations,
+    facilities: ielvFacilities,
+    services: ielvServices,
+    restrictions: ielvRestrictions,
+  });
+  console.log(builtDescription);
+  it('should contain the IELV description', () => {
+    expect(builtDescription).toContain(ielvDescription);
+  });
+
+  it('should contain the IELV location data', () => {
+    expect(builtDescription).toContain(ielvLocations[0].location[0]);
+    expect(builtDescription).toContain(ielvLocations[0].location[1]);
+    expect(builtDescription).toContain(ielvLocations[0].location[2]);
+    ielvLocations[0].location.forEach(location =>
+      expect(builtDescription).toContain(location)
+    );
+  });
+
+  it('should contain the IELV facilities data', () => {
+    expect(builtDescription).toContain(ielvFacilities[0].facility[0]);
+    ielvFacilities[0].facility.forEach(facility =>
+      expect(builtDescription).toContain(facility)
+    );
+  });
+
+  it('should contain the IELV services', () => {
+    expect(builtDescription).toContain(ielvServices[0].service[0]);
+    ielvServices[0].service.forEach(service =>
+      expect(builtDescription).toContain(service)
+    );
+  });
+
+  it('should contain the IELV restrictions', () => {
+    expect(builtDescription).toContain(ielvRestrictions[0].restriction[0]);
+    ielvRestrictions[0].restriction.forEach(restriction =>
+      expect(builtDescription).toContain(restriction)
+    );
   });
 });

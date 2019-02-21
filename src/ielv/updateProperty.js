@@ -2,6 +2,37 @@ import { myVRClient } from '../api/client';
 
 export const NOT_FOUND = 'Not Found';
 
+export const buildDescription = ({
+  description,
+  locations,
+  facilities,
+  services,
+  restrictions,
+}) => `
+Summary
+${description}
+
+Location
+${locations.map(({ location }) => location.join('\n')).join('\n')}
+
+Facilities
+${facilities.map(({ facility }) => facility.join('\n')).join('\n')}
+
+Services
+${services.map(({ service }) => service.join('\n')).join('\n')}
+
+Restrictions
+${restrictions.map(({ restriction }) => restriction.join('\n')).join('\n')}
+
+Living Room
+
+Kitchen
+
+Bedroom 1
+Bedroom 2
+Bedroom 3
+`;
+
 export const getProperty = externalId =>
   myVRClient
     .get(`/properties/${externalId}/`)
