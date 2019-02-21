@@ -27,6 +27,20 @@ export const putDescription = ({ name, description, externalId }) =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
+export const postProperty = ({ name, description, externalId }) =>
+  myVRClient
+    .post(`/properties/`, {
+      name,
+      description,
+      externalId,
+    })
+    .then(({ data }) => data)
+    .catch(
+      // TODO: Improve this error message
+      ({ response: { status } }) =>
+        status === 404 ? NOT_FOUND : `Status: ${status}`
+    );
+
 // TODO: Make this less naive
 export const postBedrooms = externalId =>
   myVRClient
@@ -42,24 +56,21 @@ export default async ({
   description: [ielvDescription],
 }) => {
   const externalId = `IELV_${ielvId}`;
+
   // GET property current details
-  let property = await getProperty(externalId);
+  const property = await getProperty(externalId);
 
-  if (property === NOT_FOUND) {
-    // POST new property
-    // TODO: implement
-    // property = myVRClient.post()
-  }
-
-  // PUT all details (sans bedrooms) into main description section
-  const description = putDescription({
+  // POST new property or PUT existing
+  const method = property === NOT_FOUND ? postProperty : putDescription;
+  await method({
     name,
     description: ielvDescription,
     externalId,
   });
 
   // POST new bedrooms
-  const bedrooms = postBedrooms(externalId);
+  // TODO: Only post NEW bedrooms
+  await postBedrooms(externalId);
 
-  return Promise.all([description, bedrooms]);
+  return getProperty(externalId);
 };
