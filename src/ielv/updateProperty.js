@@ -8,6 +8,7 @@ export const buildDescription = ({
   facilities,
   services,
   restrictions,
+  rooms,
 }) => `
 Summary
 ${description}
@@ -24,13 +25,18 @@ ${services.map(({ service }) => service.join('\n')).join('\n')}
 Restrictions
 ${restrictions.map(({ restriction }) => restriction.join('\n')).join('\n')}
 
-Living Room
-
-Kitchen
-
-Bedroom 1
-Bedroom 2
-Bedroom 3
+${rooms
+  .map(room =>
+    Object.entries(room)
+      .map(
+        ([key, value]) =>
+          key === '$'
+            ? `\n${value.type} ${value.index === '1' ? '' : value.index}`
+            : `${key}: ${value[0]}`
+      )
+      .join('\n')
+  )
+  .join('\n')}
 `;
 
 export const getProperty = externalId =>

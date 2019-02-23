@@ -25,6 +25,7 @@ const ielvLocations = ielvProperty.locations;
 const ielvFacilities = ielvProperty.facilities;
 const ielvServices = ielvProperty.services;
 const ielvRestrictions = ielvProperty.restrictions;
+const ielvRooms = ielvProperty.rooms[0].room;
 // Updated Details - No Bedrooms
 const tmpProperty = { ...myVRProperty, description: ielvDescription };
 // Fully-updated Property
@@ -162,8 +163,9 @@ describe('buildDescription', () => {
     facilities: ielvFacilities,
     services: ielvServices,
     restrictions: ielvRestrictions,
+    rooms: ielvRooms,
   });
-  console.log(builtDescription);
+
   it('should contain the IELV description', () => {
     expect(builtDescription).toContain(ielvDescription);
   });
@@ -195,6 +197,19 @@ describe('buildDescription', () => {
     expect(builtDescription).toContain(ielvRestrictions[0].restriction[0]);
     ielvRestrictions[0].restriction.forEach(restriction =>
       expect(builtDescription).toContain(restriction)
+    );
+  });
+
+  it('should contain the IELV rooms', () => {
+    expect(builtDescription).toContain(ielvRooms[0].view[0]);
+    ielvRooms.forEach(room =>
+      Object.entries(room).forEach(
+        ([key, value]) =>
+          key === '$'
+            ? expect(builtDescription).toContain(value.type) &&
+              expect(builtDescription).toContain(value.index)
+            : expect(builtDescription).toContain(value[0])
+      )
     );
   });
 });
