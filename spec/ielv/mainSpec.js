@@ -11,11 +11,11 @@ import myVRRoom from '../mockData/myvr/room.json';
 
 // Mock XML Response Data
 const ielvGetAllResponse = fs.readFileSync(
-  `/app/spec/mockData/ielv/getAllResponse.xml`,
+  `${process.env.PWD}/spec/mockData/ielv/getAllResponse.xml`,
   'utf8'
 );
 const ielvGetPropertyDetailsResponse = fs.readFileSync(
-  `/app/spec/mockData/ielv/getPropertyDetailsResponse.xml`,
+  `${process.env.PWD}/spec/mockData/ielv/getPropertyDetailsResponse.xml`,
   'utf8'
 );
 

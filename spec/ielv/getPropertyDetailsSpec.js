@@ -9,7 +9,7 @@ import ielvProperty from '../mockData/ielv/property.json';
 
 // Mock XML Response Data
 const ielvGetPropertyDetailsResponse = fs.readFileSync(
-  `/app/spec/mockData/ielv/getPropertyDetailsResponse.xml`,
+  `${process.env.PWD}/spec/mockData/ielv/getPropertyDetailsResponse.xml`,
   'utf8'
 );
 

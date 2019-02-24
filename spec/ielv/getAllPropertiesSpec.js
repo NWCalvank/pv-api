@@ -6,7 +6,7 @@ import { ielvClient } from '../../src/api/client';
 
 // Mock XML Response Data
 const ielvGetAllResponse = fs.readFileSync(
-  `/app/spec/mockData/ielv/getAllResponse.xml`,
+  `${process.env.PWD}/spec/mockData/ielv/getAllResponse.xml`,
   'utf8'
 );
 

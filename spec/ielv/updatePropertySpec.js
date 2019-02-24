@@ -20,7 +20,7 @@ const MOCK_PROPERTY_ID = 1234;
 const MOCK_PROPERTY_NAME = 'Mock Property';
 const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
 const expectedHTML = fs.readFileSync(
-  `/app/spec/mockData/myvr/formattedHTML.txt`,
+  `${process.env.PWD}/spec/mockData/myvr/formattedHTML.txt`,
   'utf8'
 );
 
