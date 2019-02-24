@@ -1,4 +1,5 @@
 import { myVRClient } from '../api/client';
+import { log } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -96,7 +97,7 @@ export const postBedrooms = externalId =>
       property: externalId,
     })
     .then(({ data }) => data)
-    .catch(console.log);
+    .catch(log);
 
 export default async ({
   id: [ielvId],

@@ -1,6 +1,7 @@
 import convert from 'xml-to-json-promise';
 
 import { ielvClient } from '../api/client';
+import { log } from '../util/logger';
 
 export default id =>
   ielvClient
@@ -13,4 +14,4 @@ export default id =>
         },
       }) => property
     )
-    .catch(console.log);
+    .catch(log);

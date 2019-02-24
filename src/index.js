@@ -2,4 +2,6 @@
 import ielv from './ielv/main';
 
 // Export all action handlers
-export default { ielv };
+// Temporarily disable while there's only one module
+// eslint-disable-next-line import/prefer-default-export
+export { ielv };

@@ -7,6 +7,7 @@
 
 const http = require('http');
 const express = require('express');
+const { log } = require('./util/logger');
 
 const port = 8080;
 
@@ -22,7 +23,7 @@ const setUpApp = functions => {
   const newApp = express();
 
   Object.keys(functions).forEach(func => {
-    console.log(`registered http://localhost:${port}/${func}`);
+    log(`registered http://localhost:${port}/${func}`);
 
     newApp.post(`/${func}`, functions[func]);
   });
