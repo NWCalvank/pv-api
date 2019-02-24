@@ -2,6 +2,19 @@ import { myVRClient } from '../api/client';
 
 export const NOT_FOUND = 'Not Found';
 
+const htmlStyle = (items, title) => `
+<br/>
+
+<div><strong>${title}</strong></div>
+<div>
+<ul><li>
+${items
+  .map(obj => obj[title.toLowerCase()].join('</li><li>'))
+  .join('</li><li>')}
+</li></ul>
+</div>
+`;
+
 export const buildDescription = ({
   description,
   locations,
@@ -10,33 +23,31 @@ export const buildDescription = ({
   restrictions,
   rooms,
 }) => `
-Summary
-${description}
+<div><strong>Summary</strong></div>
+<div>${description}</div>
+${htmlStyle(locations, 'Location')}
+${htmlStyle(facilities, 'Facility')}
+${htmlStyle(services, 'Service')}
+${htmlStyle(restrictions, 'Restriction')}
 
-Location
-${locations.map(({ location }) => location.join('\n')).join('\n')}
+<br/>
 
-Facilities
-${facilities.map(({ facility }) => facility.join('\n')).join('\n')}
-
-Services
-${services.map(({ service }) => service.join('\n')).join('\n')}
-
-Restrictions
-${restrictions.map(({ restriction }) => restriction.join('\n')).join('\n')}
-
+<div>
 ${rooms
   .map(room =>
     Object.entries(room)
       .map(
         ([key, value]) =>
           key === '$'
-            ? `\n${value.type} ${value.index === '1' ? '' : value.index}`
-            : `${key}: ${value[0]}`
+            ? `<div><strong>${value.type} ${
+                value.index === '1' ? '' : value.index
+              }</strong></div><ul>`
+            : `<li>${key}: ${value[0]}</li>`
       )
-      .join('\n')
+      .join('')
   )
-  .join('\n')}
+  .join('</ul></div><br/><div>')}
+<div>
 `;
 
 export const getProperty = externalId =>
@@ -91,6 +102,11 @@ export default async ({
   id: [ielvId],
   title: [name],
   description: [ielvDescription],
+  locations: ielvLocations,
+  facilities: ielvFacilities,
+  services: ielvServices,
+  restrictions: ielvRestrictions,
+  rooms: [{ room: ielvRooms }],
 }) => {
   const externalId = `IELV_${ielvId}`;
 
@@ -101,12 +117,19 @@ export default async ({
   const method = property === NOT_FOUND ? postProperty : putDescription;
   await method({
     name,
-    description: ielvDescription,
+    description: buildDescription({
+      description: ielvDescription,
+      locations: ielvLocations,
+      facilities: ielvFacilities,
+      services: ielvServices,
+      restrictions: ielvRestrictions,
+      rooms: ielvRooms,
+    }),
     externalId,
   });
 
   // POST new bedrooms
-  // TODO: Only post NEW bedrooms
+  // TODO: Only post NEW bedrooms -- DO THIS NEXT (after description)
   await postBedrooms(externalId);
 
   return getProperty(externalId);

@@ -1,3 +1,4 @@
+import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter';
 
 import updateProperty, {
@@ -18,6 +19,10 @@ import myVRRoom from '../mockData/myvr/room.json';
 const MOCK_PROPERTY_ID = 1234;
 const MOCK_PROPERTY_NAME = 'Mock Property';
 const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
+const expectedHTML = fs.readFileSync(
+  `/app/spec/mockData/myvr/formattedHTML.txt`,
+  'utf8'
+);
 
 // Resulting Mock Data
 const [ielvDescription] = ielvProperty.description;
@@ -211,5 +216,9 @@ describe('buildDescription', () => {
             : expect(builtDescription).toContain(value[0])
       )
     );
+  });
+
+  it('should contain all of the expected values, formatted as HTML -- regression test', () => {
+    expect(builtDescription.trim()).toEqual(expectedHTML.trim());
   });
 });

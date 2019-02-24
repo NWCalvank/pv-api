@@ -2,4 +2,4 @@
 import ielv from './ielv/main';
 
 // Export all action handlers
-export { ielv };
+export default { ielv };

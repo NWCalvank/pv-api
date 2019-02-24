@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 
 import getAllProperties from './getAllProperties';
 import getPropertyDetails from './getPropertyDetails';
-import updateProperty from './updateProperty';
 
 dotenv.config();
 
@@ -30,10 +29,6 @@ export default function(req, res) {
   // Promise response for function invocation
   return getAllProperties().then(getAllPropertyDetails);
 
-  /* Uncomment for real testing
-   * updateProperty({
-    id: ['12345'],
-    title: ['AAA PROPERTY 2'],
-    description: ['This is a great, new property.'],
-  }); */
+  // Uncomment for real testing
+  // updateProperty(mockPropertyJSONHere);
 }
