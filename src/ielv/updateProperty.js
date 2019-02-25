@@ -90,14 +90,73 @@ export const postProperty = ({ name, description, externalId }) =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
-// TODO: Make this less naive
-export const postBedrooms = externalId =>
+// TODO: Add unit tests
+export const getExistingBedrooms = externalId =>
   myVRClient
-    .post('/rooms/', {
-      property: externalId,
-    })
+    .get(`/rooms/?property=${externalId}`)
     .then(({ data }) => data)
+    .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(log);
+
+// TODO: Add unit tests
+const parseBedSize = rawBedSize => {
+  const bedSize = rawBedSize.toLowerCase();
+  if (bedSize.includes('king')) {
+    return 'king';
+  }
+
+  if (bedSize.includes('full')) {
+    return 'full';
+  }
+
+  if (bedSize.includes('queen')) {
+    return 'queen';
+  }
+
+  if (bedSize.includes('twin')) {
+    return 'twin';
+  }
+
+  if (bedSize.includes('crib')) {
+    return 'crib';
+  }
+
+  return 'other';
+};
+
+// TODO: Test coverage
+export const postBedrooms = async (externalId, ielvRooms) => {
+  // Check existing bedrooms
+  const existingMyVRBedrooms = await getExistingBedrooms(externalId);
+
+  const ielvBedrooms = ielvRooms.filter(
+    ({ $: { type } }) => type === 'Bedroom'
+  );
+
+  // Remove all existing MyVR rooms for current property
+  await existingMyVRBedrooms.map(({ key }) =>
+    myVRClient.delete(`/rooms/${key}/`).catch(log)
+  );
+
+  // Create all rooms from IELV Data
+  await ielvBedrooms.map(({ bed_size: [bedSize] }) =>
+    myVRClient
+      .post(`/rooms/`, {
+        // required
+        property: externalId,
+        // data to update
+        beds: [
+          {
+            size: parseBedSize(bedSize),
+            type: 'standard',
+            mattress: 'box',
+          },
+        ],
+      })
+      .then(({ data }) => data)
+      .catch(log)
+  );
+};
 
 export default async ({
   id: [ielvId],
@@ -116,6 +175,7 @@ export default async ({
 
   // POST new property or PUT existing
   const method = property === NOT_FOUND ? postProperty : putDescription;
+  // TODO: Update test coverage for new description ?
   await method({
     name,
     description: buildDescription({
@@ -130,8 +190,8 @@ export default async ({
   });
 
   // POST new bedrooms
-  // TODO: Only post NEW bedrooms -- DO THIS NEXT (after description)
-  await postBedrooms(externalId);
+  // TODO: Update tests
+  // await postBedrooms(externalId, ielvRooms);
 
   return getProperty(externalId);
 };

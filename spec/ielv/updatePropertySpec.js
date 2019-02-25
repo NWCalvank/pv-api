@@ -13,7 +13,7 @@ import { myVRClient } from '../../src/api/client';
 // Mock JSON Response Data
 import ielvProperty from '../mockData/ielv/property.json';
 import myVRProperty from '../mockData/myvr/property.json';
-import myVRRoom from '../mockData/myvr/room.json';
+// import myVRRoom from '../mockData/myvr/room.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -49,8 +49,9 @@ describe('updateProperty', () => {
       .replyOnce(200, myVRProperty)
       .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, tmpProperty)
-      .onPost(`/rooms/`)
-      .reply(200, myVRRoom)
+      // TODO: Insert postBedrooms API call stubs
+      // .onPost(`/rooms/`)
+      // .reply(200, myVRRoom)
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -66,8 +67,9 @@ describe('updateProperty', () => {
       .replyOnce(404)
       .onPost(`/properties/`)
       .replyOnce(200, tmpProperty)
-      .onPost(`/rooms/`)
-      .reply(200, myVRRoom)
+      // TODO: Insert postBedrooms API call stubs
+      // .onPost(`/rooms/`)
+      // .reply(200, myVRRoom)
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
