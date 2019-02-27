@@ -90,7 +90,6 @@ export const postProperty = ({ name, description, externalId }) =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
-// TODO: Add unit tests
 export const getExistingBedrooms = externalId =>
   myVRClient
     .get(`/rooms/?property=${externalId}`)
@@ -98,8 +97,7 @@ export const getExistingBedrooms = externalId =>
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(log);
 
-// TODO: Add unit tests
-const parseBedSize = rawBedSize => {
+export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
   if (bedSize.includes('king')) {
     return 'king';
@@ -124,7 +122,23 @@ const parseBedSize = rawBedSize => {
   return 'other';
 };
 
-// TODO: Test coverage
+export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
+  myVRClient
+    .post(`/rooms/`, {
+      // required
+      property: externalId,
+      // data to update
+      beds: [
+        {
+          size: parseBedSize(bedSize),
+          type: 'standard',
+          mattress: 'box',
+        },
+      ],
+    })
+    .then(({ data }) => data)
+    .catch(log);
+
 export const postBedrooms = async (externalId, ielvRooms) => {
   // Check existing bedrooms
   const existingMyVRBedrooms = await getExistingBedrooms(externalId);
@@ -139,23 +153,7 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   );
 
   // Create all rooms from IELV Data
-  await ielvBedrooms.map(({ bed_size: [bedSize] }) =>
-    myVRClient
-      .post(`/rooms/`, {
-        // required
-        property: externalId,
-        // data to update
-        beds: [
-          {
-            size: parseBedSize(bedSize),
-            type: 'standard',
-            mattress: 'box',
-          },
-        ],
-      })
-      .then(({ data }) => data)
-      .catch(log)
-  );
+  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId)));
 };
 
 export default async ({
@@ -190,8 +188,7 @@ export default async ({
   });
 
   // POST new bedrooms
-  // TODO: Update tests
-  // await postBedrooms(externalId, ielvRooms);
+  await postBedrooms(externalId, ielvRooms);
 
   return getProperty(externalId);
 };

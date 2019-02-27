@@ -7,13 +7,18 @@ import updateProperty, {
   getProperty,
   putDescription,
   postProperty,
+  getExistingBedrooms,
+  parseBedSize,
+  createMyVRRoom,
+  postBedrooms,
 } from '../../src/ielv/updateProperty';
 import { myVRClient } from '../../src/api/client';
 
 // Mock JSON Response Data
 import ielvProperty from '../mockData/ielv/property.json';
 import myVRProperty from '../mockData/myvr/property.json';
-// import myVRRoom from '../mockData/myvr/room.json';
+import myVRRoom from '../mockData/myvr/room.json';
+import myVRRooms from '../mockData/myvr/rooms.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -41,6 +46,14 @@ const updatedProperty = {
   beds: [],
 };
 
+// Helpers
+const mockMyVRRoom = id => ({
+  ...myVRRoom,
+  id,
+  key: id,
+  uri: `https://api.myvr.com/v1/rooms/${id}/`,
+});
+
 describe('updateProperty', () => {
   it('should call the MyVR API with a payload and return the updated property', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
@@ -49,9 +62,28 @@ describe('updateProperty', () => {
       .replyOnce(200, myVRProperty)
       .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, tmpProperty)
-      // TODO: Insert postBedrooms API call stubs
-      // .onPost(`/rooms/`)
-      // .reply(200, myVRRoom)
+      // START -- postBedrooms API call stubs
+      .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRooms)
+      // delete existing rooms
+      .onDelete('/rooms/room1/')
+      .replyOnce(200)
+      .onDelete('/rooms/room2/')
+      .replyOnce(200)
+      .onDelete('/rooms/room3/')
+      .replyOnce(200)
+      .onDelete('/rooms/room4/')
+      .replyOnce(200)
+      // post existing rooms
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room1'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room2'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room3'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room4'))
+      // END -- postBedrooms API call stubs
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -67,9 +99,28 @@ describe('updateProperty', () => {
       .replyOnce(404)
       .onPost(`/properties/`)
       .replyOnce(200, tmpProperty)
-      // TODO: Insert postBedrooms API call stubs
-      // .onPost(`/rooms/`)
-      // .reply(200, myVRRoom)
+      // START -- postBedrooms API call stubs
+      .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRooms)
+      // delete existing rooms
+      .onDelete('/rooms/room1/')
+      .replyOnce(200)
+      .onDelete('/rooms/room2/')
+      .replyOnce(200)
+      .onDelete('/rooms/room3/')
+      .replyOnce(200)
+      .onDelete('/rooms/room4/')
+      .replyOnce(200)
+      // post existing rooms
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room1'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room2'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room3'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room4'))
+      // END -- postBedrooms API call stubs
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -160,6 +211,75 @@ describe('postProperty', () => {
     }).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
+  });
+});
+
+describe('getExistingBedrooms', () => {
+  it('should call the MyVR API and return the existing bedrooms for that property', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .reply(200, myVRRooms);
+
+    getExistingBedrooms(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
+      expect(data).toEqual(myVRRooms.results);
+    });
+  });
+});
+
+describe('createMyVRRoom', () => {
+  it('should call the MyVR API, create a room, and return the new bedrooms', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient.onPost(`/rooms/`).reply(200, myVRRoom);
+
+    createMyVRRoom(MOCK_PROPERTY_EXTERNAL_ID)({
+      bed_size: ['King 6.56 × 6.56'],
+    }).then(data => {
+      expect(data).toEqual(myVRRoom);
+    });
+  });
+});
+
+describe('postBedrooms', () => {
+  it('should call the MyVR API to delete existing and create new bedrooms', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRooms)
+      // delete existing rooms
+      .onDelete('/rooms/room1/')
+      .replyOnce(200)
+      .onDelete('/rooms/room2/')
+      .replyOnce(200)
+      .onDelete('/rooms/room3/')
+      .replyOnce(200)
+      .onDelete('/rooms/room4/')
+      .replyOnce(200)
+      // post existing rooms
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room1'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room2'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room3'))
+      .onPost(`/rooms/`)
+      .replyOnce(200, mockMyVRRoom('room4'));
+
+    postBedrooms(MOCK_PROPERTY_EXTERNAL_ID, ielvRooms).then(data => {
+      expect(data).toEqual(myVRRooms.results);
+    });
+  });
+});
+
+// Unit Tests
+
+describe('parseBedSize', () => {
+  it('should parse the bed_size string and return a valid MyVR bedSize', () => {
+    expect(parseBedSize('King 6.56 × 6.56')).toEqual('king');
+    expect(parseBedSize('King 6.56 × 6.56 Twin')).toEqual('king');
+    expect(parseBedSize('Twin 3.56 × 6.56')).toEqual('twin');
+    expect(parseBedSize('Queen 4.56 × 6.56')).toEqual('queen');
+    expect(parseBedSize('4.56 × 6.56')).toEqual('other');
   });
 });
 

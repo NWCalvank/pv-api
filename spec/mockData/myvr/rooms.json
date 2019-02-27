@@ -1,0 +1,85 @@
+{
+  "count": 3,
+  "limit": 20,
+  "offset": 0,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "uri": "https://api.myvr.com/v1/rooms/room1/",
+      "id": "room1",
+      "key": "room1",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "type": "bedroom",
+      "bedCount": 0,
+      "beds": [],
+      "created": "2019-02-11T01:10:33.900095Z",
+      "modified": "2019-02-11T01:10:33.936024Z"
+    },
+    {
+      "uri": "https://api.myvr.com/v1/rooms/room2/",
+      "id": "room2",
+      "key": "room2",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "type": "bedroom",
+      "bedCount": 0,
+      "beds": [],
+      "created": "2019-02-11T01:10:33.900095Z",
+      "modified": "2019-02-11T01:10:33.936024Z"
+    },
+    {
+      "uri": "https://api.myvr.com/v1/rooms/room3/",
+      "id": "room3",
+      "key": "room3",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "type": "bedroom",
+      "bedCount": 0,
+      "beds": [],
+      "created": "2019-02-11T01:10:33.900095Z",
+      "modified": "2019-02-11T01:10:33.936024Z"
+    },
+    {
+      "uri": "https://api.myvr.com/v1/rooms/room4/",
+      "id": "room4",
+      "key": "room4",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "type": "bedroom",
+      "bedCount": 0,
+      "beds": [],
+      "created": "2019-02-11T01:10:33.900095Z",
+      "modified": "2019-02-11T01:10:33.936024Z"
+    }
+  ]
+}
