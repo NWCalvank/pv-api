@@ -31,9 +31,7 @@ mockIelvClient
   .reply(200, ielvGetPropertyDetailsResponse);
 
 // PUT Stubs
-const tmpProperty = Object.assign(myVRProperty, {
-  description: ielvProperty.title[0],
-});
+const tmpProperty = { ...myVRProperty, description: ielvProperty.title[0] };
 mockMyVRClient
   .onPut(`/properties/IELV_${MOCK_PROPERTY_ID}/`)
   .reply(200, tmpProperty);

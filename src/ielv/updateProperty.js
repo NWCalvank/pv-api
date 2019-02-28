@@ -59,13 +59,19 @@ export const getProperty = externalId =>
       ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
     );
 
-export const putDescription = ({ name, description, externalId }) =>
+export const putDescription = ({
+  name,
+  description,
+  accommodates,
+  externalId,
+}) =>
   myVRClient
     .put(`/properties/${externalId}/`, {
       // required
       name,
       // relevant payload
       description,
+      accommodates,
       // becomes null if not set explicitly
       externalId,
     })
@@ -76,11 +82,15 @@ export const putDescription = ({ name, description, externalId }) =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
-export const postProperty = ({ name, description, externalId }) =>
+export const postProperty = ({ name, description, accommodates, externalId }) =>
   myVRClient
     .post(`/properties/`, {
+      // required
       name,
+      // relevant payload
       description,
+      accommodates,
+      // becomes null if not set explicitly
       externalId,
     })
     .then(({ data }) => data)
@@ -167,13 +177,15 @@ export default async ({
   rooms: [{ room: ielvRooms }],
 }) => {
   const externalId = `IELV_${ielvId}`;
+  const ielvBedrooms = ielvRooms.filter(
+    ({ $: { type } }) => type === 'Bedroom'
+  );
 
   // GET property current details
   const property = await getProperty(externalId);
 
   // POST new property or PUT existing
   const method = property === NOT_FOUND ? postProperty : putDescription;
-  // TODO: Update test coverage for new description ?
   await method({
     name,
     description: buildDescription({
@@ -184,6 +196,7 @@ export default async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    accommodates: ielvBedrooms.length * 2,
     externalId,
   });
 
