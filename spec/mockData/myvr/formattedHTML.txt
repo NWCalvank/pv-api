@@ -44,6 +44,15 @@ Children min age:12 years old</li><li>Pets: unauthorized</li><li>* Children unde
 
 <br/>
 
+<div><strong>Pools</strong></div>
+<div>
+<ul><li>
+20 x 40 ft., heated</li><li>13.1 x 59.1 ft., heated
+</li></ul>
+</div>
+
+<br />
+
 <div>
 <div><strong>Living room </strong></div><ul><li>view: Ocean</li><li>equipment: fan</li><li>other: * iPod Dock</li></ul></div><br/><div><div><strong>Kitchen </strong></div><ul><li>equipped_for: 10 people</li><li>equipment: fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher</li><li>other: * Ice maker
 * Nespresso coffee machine</li></ul></div><br/><div><div><strong>Bedroom </strong></div><ul><li>view: Garden</li><li>bed_size: King 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower</li><li>other: * 2 dressings

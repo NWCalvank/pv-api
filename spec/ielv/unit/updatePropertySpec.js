@@ -16,6 +16,7 @@ const expectedHTML = fs.readFileSync(
 // Resulting Mock Data
 const [ielvDescription] = ielvProperty.description;
 const ielvLocations = ielvProperty.locations;
+const ielvPools = ielvProperty.pools;
 const ielvFacilities = ielvProperty.facilities;
 const ielvServices = ielvProperty.services;
 const ielvRestrictions = ielvProperty.restrictions;
@@ -35,6 +36,7 @@ describe('buildDescription', () => {
   const builtDescription = buildDescription({
     description: ielvDescription,
     locations: ielvLocations,
+    pools: ielvPools,
     facilities: ielvFacilities,
     services: ielvServices,
     restrictions: ielvRestrictions,
@@ -51,6 +53,13 @@ describe('buildDescription', () => {
     expect(builtDescription).toContain(ielvLocations[0].location[2]);
     ielvLocations[0].location.forEach(location =>
       expect(builtDescription).toContain(location)
+    );
+  });
+
+  it('should contain the IELV pools data', () => {
+    expect(builtDescription).toContain(ielvPools[0].pool[0].description[0]);
+    ielvPools[0].pool.forEach(({ description: [text] }) =>
+      expect(builtDescription).toContain(text)
     );
   });
 

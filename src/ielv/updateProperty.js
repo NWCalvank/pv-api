@@ -19,6 +19,7 @@ ${items
 export const buildDescription = ({
   description,
   locations,
+  pools,
   facilities,
   services,
   restrictions,
@@ -32,6 +33,15 @@ ${htmlStyle(services, 'Service')}
 ${htmlStyle(restrictions, 'Restriction')}
 
 <br/>
+
+<div><strong>Pools</strong></div>
+<div>
+<ul><li>
+${pools[0].pool.map(({ description: [text] }) => text).join('</li><li>')}
+</li></ul>
+</div>
+
+<br />
 
 <div>
 ${rooms
@@ -171,6 +181,7 @@ export default async ({
   title: [name],
   description: [ielvDescription],
   locations: ielvLocations,
+  pools: ielvPools,
   facilities: ielvFacilities,
   services: ielvServices,
   restrictions: ielvRestrictions,
@@ -191,6 +202,7 @@ export default async ({
     description: buildDescription({
       description: ielvDescription,
       locations: ielvLocations,
+      pools: ielvPools,
       facilities: ielvFacilities,
       services: ielvServices,
       restrictions: ielvRestrictions,

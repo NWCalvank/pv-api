@@ -28,9 +28,12 @@
   "pools": [
     {
       "$": {
-        "count": "1"
+        "count": "2"
       },
       "pool": [
+        {
+          "description": ["20 x 40 ft., heated"]
+        },
         {
           "description": ["13.1 x 59.1 ft., heated"]
         }

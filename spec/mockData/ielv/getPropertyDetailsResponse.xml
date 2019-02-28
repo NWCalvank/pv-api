@@ -22,7 +22,10 @@
   <bedrooms>4</bedrooms>
   <bathrooms>4</bathrooms>
   <max_occupancy>8</max_occupancy>
-  <pools count="1">
+  <pools count="2">
+    <pool>
+      <description>20 x 40 ft., heated</description>
+    </pool>
     <pool>
       <description>13.1 x 59.1 ft., heated</description>
     </pool>
