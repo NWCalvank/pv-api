@@ -16,6 +16,7 @@ import ielvProperty from '../../mockData/ielv/property.json';
 import myVRProperty from '../../mockData/myvr/property.json';
 import myVRRoom from '../../mockData/myvr/room.json';
 import myVRRooms from '../../mockData/myvr/rooms.json';
+import myVRRates from '../../mockData/myvr/rates.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -51,6 +52,7 @@ describe('updateProperty', () => {
       .replyOnce(200, myVRProperty)
       .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, tmpProperty)
+
       // START -- postBedrooms API call stubs
       .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRRooms)
@@ -73,6 +75,24 @@ describe('updateProperty', () => {
       .onPost(`/rooms/`)
       .replyOnce(200, mockMyVRRoom('room4'))
       // END -- postBedrooms API call stubs
+
+      // START -- syncRates API call stubs
+      .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRates)
+      .onDelete(`rates/rate1/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate2/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate3/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      // END -- syncRates API call stubs
+
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -88,6 +108,7 @@ describe('updateProperty', () => {
       .replyOnce(404)
       .onPost(`/properties/`)
       .replyOnce(200, tmpProperty)
+
       // START -- postBedrooms API call stubs
       .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRRooms)
@@ -110,6 +131,23 @@ describe('updateProperty', () => {
       .onPost(`/rooms/`)
       .replyOnce(200, mockMyVRRoom('room4'))
       // END -- postBedrooms API call stubs
+
+      // START -- syncRates API call stubs
+      .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRates)
+      .onDelete(`rates/rate1/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate2/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate3/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      .onPost(`/rates/`)
+      .replyOnce(200)
+      // END -- syncRates API call stubs
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 

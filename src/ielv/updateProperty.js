@@ -1,5 +1,5 @@
 import { myVRClient } from '../api/client';
-import { log } from '../util/logger';
+import { logError } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -115,7 +115,7 @@ export const getExistingBedrooms = externalId =>
     .get(`/rooms/?property=${externalId}`)
     .then(({ data }) => data)
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
-    .catch(log);
+    .catch(logError);
 
 export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
@@ -157,7 +157,7 @@ export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
       ],
     })
     .then(({ data }) => data)
-    .catch(log);
+    .catch(logError);
 
 export const postBedrooms = async (externalId, ielvRooms) => {
   // Check existing bedrooms
@@ -169,11 +169,55 @@ export const postBedrooms = async (externalId, ielvRooms) => {
 
   // Remove all existing MyVR rooms for current property
   await existingMyVRBedrooms.map(({ key }) =>
-    myVRClient.delete(`/rooms/${key}/`).catch(log)
+    myVRClient.delete(`/rooms/${key}/`).catch(logError)
   );
 
   // Create all rooms from IELV Data
   return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId)));
+};
+
+const syncRates = async (externalId, ielvPrices) => {
+  // GET existing rates
+  const existingRates = await myVRClient
+    .get(`/rates/?property=${externalId}`)
+    .then(({ data }) => data)
+    .then(({ results }) => results)
+    .catch(
+      ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
+    );
+
+  // DELETE existing rates
+  await Promise.all(
+    existingRates.map(async ({ key }) => myVRClient.delete(`/rates/${key}/`))
+  ).catch(
+    ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
+  );
+
+  // POST all current rates
+  return Promise.all(
+    ielvPrices.price.map(async ({ $, bedroom_count: bedroomCount }) => {
+      const { name: priceName, to: endDate, from: startDate } = $;
+      const { _: priceString } = bedroomCount[bedroomCount.length - 1];
+      const amountInCents =
+        Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100;
+
+      return myVRClient
+        .post(`/rates/`, {
+          // required
+          property: externalId,
+          // relevant payload
+          baseRate: false,
+          name: priceName,
+          startDate,
+          endDate,
+          minStay: 1,
+          repeat: false,
+          nightly: amountInCents,
+          weekendNight: amountInCents,
+        })
+        .catch(logError);
+    })
+  );
 };
 
 export default async ({
@@ -186,6 +230,7 @@ export default async ({
   services: ielvServices,
   restrictions: ielvRestrictions,
   rooms: [{ room: ielvRooms }],
+  prices: [ielvPrices],
 }) => {
   const externalId = `IELV_${ielvId}`;
   const ielvBedrooms = ielvRooms.filter(
@@ -197,6 +242,7 @@ export default async ({
 
   // POST new property or PUT existing
   const method = property === NOT_FOUND ? postProperty : putDescription;
+  // TODO: Add shortcode
   await method({
     name,
     description: buildDescription({
@@ -214,6 +260,9 @@ export default async ({
 
   // POST new bedrooms
   await postBedrooms(externalId, ielvRooms);
+
+  // Sync rates
+  await syncRates(externalId, ielvPrices);
 
   return getProperty(externalId);
 };
