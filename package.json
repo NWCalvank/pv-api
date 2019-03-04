@@ -18,15 +18,17 @@
     "docker:stop": "docker-compose down",
     "format": "prettier --single-quote --trailing-comma=es5 --write ./**/*.{js,json}",
     "jasmine": "jasmine ./dist/spec.js",
-    "lint": "eslint --fix ./src",
+    "jasmine:watch": "nodemon --exec npm run jasmine",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint --fix ./src",
+    "lint:watch": "nodemon --exec npm run lint",
     "postdeploy": "rm build.zip",
     "postdocker:install": "command -v docker && npm run sync-deps",
     "postdocker:uninstall": "command -v docker && npm run sync-deps",
-    "precommit": "lint-staged",
     "predeploy": "mkdir -p dist && docker cp app:/app/dist/actions.js ./dist/actions.js",
     "prepush": "npm test",
     "server": "nodemon ./dist/server.js",
-    "start": "npm run build-dev -- --watch & nodemon --exec npm run jasmine",
+    "start": "npm run build-dev -- --watch & npm run jasmine:watch & npm run lint:watch",
     "sync-deps": "npm run sync-pkg && npm run sync-pkg-lock",
     "sync-pkg": "docker cp app:/app/package.json ./package.json",
     "sync-pkg-lock": "docker cp app:/app/package-lock.json ./package-lock.json",
@@ -62,8 +64,9 @@
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-import": "^2.14.0",
     "express": "^4.16.4",
+    "husky": "^1.3.1",
     "jasmine": "^3.2.0",
-    "lint-staged": "^7.2.2",
+    "lint-staged": "^8.1.4",
     "nodemon": "^1.18.7",
     "prettier": "^1.14.2",
     "webpack": "^4.17.2",
@@ -81,5 +84,10 @@
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5"
+  },
+  "husky": {
+    "hooks": {
+      "precommit": "lint-staged"
+    }
   }
 }

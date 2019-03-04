@@ -1,36 +1,16 @@
-import convert from 'xml-to-json-promise';
 import dotenv from 'dotenv';
 
-import { ielvClient } from './api/client';
+import getAllProperties from './getAllProperties';
+import getPropertyDetails from './getPropertyDetails';
 
 dotenv.config();
-
-export const getAllProperties = () =>
-  ielvClient
-    .get('/villas.xml')
-    .then(({ data }) => convert.xmlDataToJSON(data))
-    .then(({ ielv: { villa } }) => villa)
-    .catch(console.log);
-
-export const getPropertyDetails = id =>
-  ielvClient
-    .get(`/villas.xml/${id}`)
-    .then(({ data }) => convert.xmlDataToJSON(data))
-    .then(
-      ({
-        ielv: {
-          villa: [property],
-        },
-      }) => property
-    )
-    .catch(console.log);
 
 // TODO: Possibly export and add coverage
 const getAllPropertyDetails = properties =>
   Promise.all(properties.map(({ id: [ielvId] }) => getPropertyDetails(ielvId)));
 
 export default function(req, res) {
-  if (req.header('Authorization') !== process.env.IELV_API_KEY) {
+  if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
     const reason = 'Invalid Authorization header';
     // HTTP Response for incoming request
     res.send({ status: 401, status_message: 'Unauthorized', message: reason });
@@ -48,4 +28,7 @@ export default function(req, res) {
 
   // Promise response for function invocation
   return getAllProperties().then(getAllPropertyDetails);
+
+  // Uncomment for real testing
+  // updateProperty(mockPropertyJSONHere);
 }

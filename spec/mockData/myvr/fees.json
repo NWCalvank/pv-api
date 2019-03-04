@@ -1,0 +1,71 @@
+{
+  "count": 2,
+  "limit": 20,
+  "offset": 0,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "uri": "https://api.myvr.com/v1/fees/f80755cd3ca0d6cd/",
+      "id": "f80755cd3ca0d6cd",
+      "key": "tax1",
+      "externalId": null,
+      "property": {
+        "name": "Mock property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "name": "Tax",
+      "description": null,
+      "type": "tax",
+      "basis": "rent-percentage",
+      "currency": "USD",
+      "cost": 500,
+      "percentage": "5.000",
+      "included": true,
+      "optional": false,
+      "refundable": false,
+      "taxable": false,
+      "position": 1,
+      "guestThreshold": 0,
+      "includeChildren": false,
+      "locked": false,
+      "created": "2019-03-04T02:38:38Z",
+      "modified": "2019-03-04T03:15:00Z"
+    },
+    {
+      "uri": "https://api.myvr.com/v1/fees/0f453b841b562f41/",
+      "id": "0f453b841b562f41",
+      "key": "serviceCharge1",
+      "externalId": null,
+      "property": {
+        "name": "Mock property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "name": "Service Charge",
+      "description": null,
+      "type": "fee",
+      "basis": "rent-percentage",
+      "currency": "USD",
+      "cost": 1100,
+      "percentage": "11.000",
+      "included": true,
+      "optional": false,
+      "refundable": false,
+      "taxable": true,
+      "position": 0,
+      "guestThreshold": 0,
+      "includeChildren": false,
+      "locked": false,
+      "created": "2019-03-04T02:38:39Z",
+      "modified": "2019-03-04T03:15:00Z"
+    }
+  ]
+}
