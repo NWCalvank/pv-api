@@ -220,6 +220,79 @@ const syncRates = async (externalId, ielvPrices) => {
   );
 };
 
+const setFees = async externalId => {
+  const existingFees = await myVRClient
+    .get(`/fees/?property=${externalId}`)
+    .then(({ data }) => data)
+    .then(({ results }) => results)
+    .catch(logError);
+
+  const TAX = 'Tax';
+  const SERVICE_CHARGE = 'Service Charge';
+
+  if (!existingFees) {
+    return Promise.reject(
+      new Error(`Failed to fetch existing fees for property ${externalId}`)
+    );
+  }
+
+  const existingTax = existingFees.filter(({ name }) => name === TAX)[0];
+  const existingServiceCharge = existingFees.filter(
+    ({ name }) => name === SERVICE_CHARGE
+  )[0];
+
+  const taxPayload = {
+    // required
+    property: externalId,
+    // relevant payload
+    name: TAX,
+    type: 'tax',
+    basis: 'rent-percentage',
+    currency: 'USD',
+    percentage: '5.000',
+    included: true,
+    optional: false,
+    refundable: false,
+    taxable: false,
+    position: 1,
+    guestThreshold: 0,
+    includeChildren: false,
+    locked: false,
+  };
+
+  const serviceChargePayload = {
+    // required
+    property: externalId,
+    // relevant payload
+    name: SERVICE_CHARGE,
+    type: 'fee',
+    basis: 'rent-percentage',
+    currency: 'USD',
+    percentage: '10.000',
+    included: true,
+    optional: false,
+    refundable: false,
+    taxable: true,
+    position: 0,
+    guestThreshold: 0,
+    includeChildren: false,
+    locked: false,
+  };
+
+  const taxPromise = existingTax
+    ? myVRClient.put(`/fees/${existingTax.key}/`, taxPayload)
+    : myVRClient.post(`/fees/`, taxPayload);
+
+  const serviceChargePromise = existingServiceCharge
+    ? myVRClient.put(
+        `/fees/${existingServiceCharge.key}/`,
+        serviceChargePayload
+      )
+    : myVRClient.post(`/fees/`, serviceChargePayload);
+
+  return Promise.all([taxPromise, serviceChargePromise]).catch(logError);
+};
+
 export default async ({
   id: [ielvId],
   title: [name],
@@ -263,6 +336,9 @@ export default async ({
 
   // Sync rates
   await syncRates(externalId, ielvPrices);
+
+  // Set standard fees
+  await setFees(externalId);
 
   return getProperty(externalId);
 };

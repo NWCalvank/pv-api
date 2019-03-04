@@ -17,6 +17,7 @@ import myVRProperty from '../../mockData/myvr/property.json';
 import myVRRoom from '../../mockData/myvr/room.json';
 import myVRRooms from '../../mockData/myvr/rooms.json';
 import myVRRates from '../../mockData/myvr/rates.json';
+import myVRFees from '../../mockData/myvr/fees.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -93,6 +94,15 @@ describe('updateProperty', () => {
       .replyOnce(200)
       // END -- syncRates API call stubs
 
+      // START -- setFees API call stubs
+      .onGet(`/fees/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRFees)
+      .onPut(`/fees/tax1/`)
+      .replyOnce(200)
+      .onPut(`/fees/serviceCharge1/`)
+      .replyOnce(200)
+      // END -- setFees API call stubs
+
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -111,17 +121,8 @@ describe('updateProperty', () => {
 
       // START -- postBedrooms API call stubs
       .onGet(`/rooms/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
-      .replyOnce(200, myVRRooms)
-      // delete existing rooms
-      .onDelete('/rooms/room1/')
-      .replyOnce(200)
-      .onDelete('/rooms/room2/')
-      .replyOnce(200)
-      .onDelete('/rooms/room3/')
-      .replyOnce(200)
-      .onDelete('/rooms/room4/')
-      .replyOnce(200)
-      // post existing rooms
+      .replyOnce(200, { results: [] })
+      // post rooms
       .onPost(`/rooms/`)
       .replyOnce(200, mockMyVRRoom('room1'))
       .onPost(`/rooms/`)
@@ -134,13 +135,7 @@ describe('updateProperty', () => {
 
       // START -- syncRates API call stubs
       .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
-      .replyOnce(200, myVRRates)
-      .onDelete(`rates/rate1/`)
-      .replyOnce(200)
-      .onDelete(`rates/rate2/`)
-      .replyOnce(200)
-      .onDelete(`rates/rate3/`)
-      .replyOnce(200)
+      .replyOnce(200, { results: [] })
       .onPost(`/rates/`)
       .replyOnce(200)
       .onPost(`/rates/`)
@@ -148,6 +143,16 @@ describe('updateProperty', () => {
       .onPost(`/rates/`)
       .replyOnce(200)
       // END -- syncRates API call stubs
+
+      // START -- setFees API call stubs
+      .onGet(`/fees/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, { results: [] })
+      .onPost(`/fees/`)
+      .replyOnce(200)
+      .onPost(`/fees/`)
+      .replyOnce(200)
+      // END -- setFees API call stubs
+
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -282,7 +287,7 @@ describe('postBedrooms', () => {
       .replyOnce(200)
       .onDelete('/rooms/room4/')
       .replyOnce(200)
-      // post existing rooms
+      // post rooms
       .onPost(`/rooms/`)
       .replyOnce(200, mockMyVRRoom('room1'))
       .onPost(`/rooms/`)
