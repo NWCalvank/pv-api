@@ -296,13 +296,25 @@ describe('postBedrooms', () => {
       .onDelete('/rooms/room4/')
       .replyOnce(200)
       // post rooms
-      .onPost(`/rooms/`)
+      .onPost(`/rooms/`, {
+        property: 'IELV_1234',
+        beds: [{ size: 'king', type: 'standard', mattress: 'box' }],
+      })
       .replyOnce(200, mockMyVRRoom('room1'))
-      .onPost(`/rooms/`)
+      .onPost(`/rooms/`, {
+        property: 'IELV_1234',
+        beds: [{ size: 'queen', type: 'standard', mattress: 'box' }],
+      })
       .replyOnce(200, mockMyVRRoom('room2'))
-      .onPost(`/rooms/`)
+      .onPost(`/rooms/`, {
+        property: 'IELV_1234',
+        beds: [{ size: 'twin', type: 'standard', mattress: 'box' }],
+      })
       .replyOnce(200, mockMyVRRoom('room3'))
-      .onPost(`/rooms/`)
+      .onPost(`/rooms/`, {
+        property: 'IELV_1234',
+        beds: [{ size: 'king', type: 'standard', mattress: 'box' }],
+      })
       .replyOnce(200, mockMyVRRoom('room4'));
 
     postBedrooms(MOCK_PROPERTY_EXTERNAL_ID, ielvRooms).then(data => {
