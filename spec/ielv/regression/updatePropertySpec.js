@@ -270,7 +270,18 @@ describe('getExistingBedrooms', () => {
 describe('createMyVRRoom', () => {
   it('should call the MyVR API, create a room, and return the new bedrooms', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
-    mockMyVRClient.onPost(`/rooms/`).reply(200, myVRRoom);
+    mockMyVRClient
+      .onPost(`/rooms/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        beds: [
+          {
+            size: 'king',
+            type: 'standard',
+            mattress: 'box',
+          },
+        ],
+      })
+      .reply(200, myVRRoom);
 
     createMyVRRoom(MOCK_PROPERTY_EXTERNAL_ID)({
       bed_size: ['King 6.56 × 6.56'],
