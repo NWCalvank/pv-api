@@ -142,6 +142,20 @@ export const parseBedSize = rawBedSize => {
   return 'other';
 };
 
+export const sortRates = prices =>
+  prices.price
+    .reduce(
+      (acc, { bedroom_count: bedroomCount }) => [
+        ...acc,
+        ...bedroomCount.map(
+          ({ _: priceString }) =>
+            Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100
+        ),
+      ],
+      []
+    )
+    .sort((a, b) => a - b);
+
 export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
   myVRClient
     .post(`/rooms/`, {
@@ -192,6 +206,22 @@ const syncRates = async (externalId, ielvPrices) => {
   ).catch(
     ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
   );
+
+  const [lowestRate] = sortRates(ielvPrices);
+
+  // POST base rate
+  myVRClient
+    .post(`/rates/`, {
+      // required
+      property: externalId,
+      // relevant payload
+      baseRate: true,
+      minStay: 5,
+      repeat: false,
+      nightly: lowestRate,
+      weekendNight: lowestRate,
+    })
+    .catch(logError);
 
   // POST all current rates
   return Promise.all(

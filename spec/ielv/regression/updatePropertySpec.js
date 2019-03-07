@@ -86,6 +86,17 @@ describe('updateProperty', () => {
       .replyOnce(200)
       .onDelete(`rates/rate3/`)
       .replyOnce(200)
+      // Create base rate
+      .onPost(`/rates/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        baseRate: true,
+        minStay: 5,
+        repeat: false,
+        nightly: 2000000,
+        weekendNight: 2000000,
+      })
+      // Create all other rates
+      .replyOnce(200)
       .onPost(`/rates/`)
       .replyOnce(200)
       .onPost(`/rates/`)
@@ -136,6 +147,8 @@ describe('updateProperty', () => {
       // START -- syncRates API call stubs
       .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, { results: [] })
+      .onPost(`/rates/`)
+      .replyOnce(200)
       .onPost(`/rates/`)
       .replyOnce(200)
       .onPost(`/rates/`)
