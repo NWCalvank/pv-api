@@ -190,7 +190,7 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId)));
 };
 
-const syncRates = async (externalId, ielvPrices) => {
+export const syncRates = async (externalId, ielvPrices) => {
   // GET existing rates
   const existingRates = await myVRClient
     .get(`/rates/?property=${externalId}`)

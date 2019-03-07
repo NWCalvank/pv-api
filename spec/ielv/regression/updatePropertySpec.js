@@ -8,6 +8,7 @@ import updateProperty, {
   getExistingBedrooms,
   createMyVRRoom,
   postBedrooms,
+  syncRates,
 } from '../../../src/ielv/updateProperty';
 import { myVRClient } from '../../../src/api/client';
 
@@ -27,6 +28,7 @@ const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
 // Resulting Mock Data
 const [ielvDescription] = ielvProperty.description;
 const ielvRooms = ielvProperty.rooms[0].room;
+const [ielvRates] = ielvProperty.prices;
 // Updated Details - No Bedrooms
 const tmpProperty = { ...myVRProperty, description: ielvDescription };
 // Fully-updated Property
@@ -87,14 +89,7 @@ describe('updateProperty', () => {
       .onDelete(`rates/rate3/`)
       .replyOnce(200)
       // Create base rate
-      .onPost(`/rates/`, {
-        property: MOCK_PROPERTY_EXTERNAL_ID,
-        baseRate: true,
-        minStay: 5,
-        repeat: false,
-        nightly: 2000000,
-        weekendNight: 2000000,
-      })
+      .onPost(`/rates/`)
       // Create all other rates
       .replyOnce(200)
       .onPost(`/rates/`)
@@ -313,5 +308,69 @@ describe('postBedrooms', () => {
     postBedrooms(MOCK_PROPERTY_EXTERNAL_ID, ielvRooms).then(data => {
       expect(data).toEqual(myVRRooms.results);
     });
+  });
+});
+
+describe('syncRates', () => {
+  it('should call the MyVR API to delete and then create all rates for the property', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRRates)
+      .onDelete(`rates/rate1/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate2/`)
+      .replyOnce(200)
+      .onDelete(`rates/rate3/`)
+      .replyOnce(200)
+      // Create base rate
+      .onPost(`/rates/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        baseRate: true,
+        minStay: 5,
+        repeat: false,
+        nightly: 2000000,
+        weekendNight: 2000000,
+      })
+      // Create all other rates
+      .replyOnce(200)
+      .onPost(`/rates/`, {
+        property: 'IELV_1234',
+        baseRate: false,
+        name: 'Low Season 2019',
+        startDate: '2019-04-16',
+        endDate: '2019-11-23',
+        minStay: 1,
+        repeat: false,
+        nightly: 2500000,
+        weekendNight: 2500000,
+      })
+      .replyOnce(200)
+      .onPost(`/rates/`, {
+        property: 'IELV_1234',
+        baseRate: false,
+        name: 'High Season 2019',
+        startDate: '2019-01-06',
+        endDate: '2019-04-16',
+        minStay: 1,
+        repeat: false,
+        nightly: 3500000,
+        weekendNight: 3500000,
+      })
+      .replyOnce(200)
+      .onPost(`/rates/`, {
+        property: 'IELV_1234',
+        baseRate: false,
+        name: 'High Season 2020',
+        startDate: '2020-01-11',
+        endDate: '2020-04-16',
+        minStay: 1,
+        repeat: false,
+        nightly: 3500000,
+        weekendNight: 3500000,
+      })
+      .replyOnce(200);
+
+    syncRates(MOCK_PROPERTY_EXTERNAL_ID, ielvRates);
   });
 });
