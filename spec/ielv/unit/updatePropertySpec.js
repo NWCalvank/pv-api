@@ -4,6 +4,7 @@ import {
   buildDescription,
   parseBedSize,
   sortRates,
+  seasonalMinimum,
 } from '../../../src/ielv/updateProperty';
 
 // Mock JSON Response Data
@@ -22,6 +23,15 @@ const ielvFacilities = ielvProperty.facilities;
 const ielvServices = ielvProperty.services;
 const ielvRestrictions = ielvProperty.restrictions;
 const ielvRooms = ielvProperty.rooms[0].room;
+
+describe('seasonalMinimum', () => {
+  it('should parse the rate name string and return the expected minimum stay', () => {
+    expect(seasonalMinimum('Low Season 2020')).toEqual(5);
+    expect(seasonalMinimum('High Season 2020')).toEqual(7);
+    expect(seasonalMinimum('Christmas 2020 - New Year 2021')).toEqual(14);
+    expect(seasonalMinimum('Thanksgiving 2019')).toEqual(14);
+  });
+});
 
 describe('parseBedSize', () => {
   it('should parse the bed_size string and return a valid MyVR bedSize', () => {

@@ -3,6 +3,19 @@ import { logError } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
+export const seasonalMinimum = str => {
+  const mapping = {
+    low: 5,
+    high: 7,
+    holiday: 14,
+  };
+  let key = 'holiday';
+  if (str.toLowerCase().includes('low')) key = 'low';
+  if (str.toLowerCase().includes('high')) key = 'high';
+
+  return mapping[key];
+};
+
 const htmlStyle = (items, title) => `
 <br/>
 
@@ -240,7 +253,7 @@ export const syncRates = async (externalId, ielvPrices) => {
           name: priceName,
           startDate,
           endDate,
-          minStay: 1,
+          minStay: seasonalMinimum(priceName),
           repeat: false,
           nightly: amountInCents,
           weekendNight: amountInCents,
