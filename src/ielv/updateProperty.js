@@ -16,6 +16,45 @@ export const seasonalMinimum = str => {
   return mapping[key];
 };
 
+export const parseBedSize = rawBedSize => {
+  const bedSize = rawBedSize.toLowerCase();
+  if (bedSize.includes('king')) {
+    return 'king';
+  }
+
+  if (bedSize.includes('full')) {
+    return 'full';
+  }
+
+  if (bedSize.includes('queen')) {
+    return 'queen';
+  }
+
+  if (bedSize.includes('twin')) {
+    return 'twin';
+  }
+
+  if (bedSize.includes('crib')) {
+    return 'crib';
+  }
+
+  return 'other';
+};
+
+export const sortRates = prices =>
+  prices.price
+    .reduce(
+      (acc, { bedroom_count: bedroomCount }) => [
+        ...acc,
+        ...bedroomCount.map(
+          ({ _: priceString }) =>
+            Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100
+        ),
+      ],
+      []
+    )
+    .sort((a, b) => a - b);
+
 const htmlStyle = (items, title) => `
 <br/>
 
@@ -82,22 +121,9 @@ export const getProperty = externalId =>
       ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
     );
 
-export const putDescription = ({
-  name,
-  description,
-  accommodates,
-  externalId,
-}) =>
+export const putDescription = payload =>
   myVRClient
-    .put(`/properties/${externalId}/`, {
-      // required
-      name,
-      // relevant payload
-      description,
-      accommodates,
-      // becomes null if not set explicitly
-      externalId,
-    })
+    .put(`/properties/${payload.externalId}/`, payload)
     .then(({ data }) => data)
     .catch(
       // TODO: Improve this error message
@@ -105,17 +131,9 @@ export const putDescription = ({
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
-export const postProperty = ({ name, description, accommodates, externalId }) =>
+export const postProperty = payload =>
   myVRClient
-    .post(`/properties/`, {
-      // required
-      name,
-      // relevant payload
-      description,
-      accommodates,
-      // becomes null if not set explicitly
-      externalId,
-    })
+    .post(`/properties/`, payload)
     .then(({ data }) => data)
     .catch(
       // TODO: Improve this error message
@@ -129,45 +147,6 @@ export const getExistingBedrooms = externalId =>
     .then(({ data }) => data)
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(logError);
-
-export const parseBedSize = rawBedSize => {
-  const bedSize = rawBedSize.toLowerCase();
-  if (bedSize.includes('king')) {
-    return 'king';
-  }
-
-  if (bedSize.includes('full')) {
-    return 'full';
-  }
-
-  if (bedSize.includes('queen')) {
-    return 'queen';
-  }
-
-  if (bedSize.includes('twin')) {
-    return 'twin';
-  }
-
-  if (bedSize.includes('crib')) {
-    return 'crib';
-  }
-
-  return 'other';
-};
-
-export const sortRates = prices =>
-  prices.price
-    .reduce(
-      (acc, { bedroom_count: bedroomCount }) => [
-        ...acc,
-        ...bedroomCount.map(
-          ({ _: priceString }) =>
-            Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100
-        ),
-      ],
-      []
-    )
-    .sort((a, b) => a - b);
 
 export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
   myVRClient
@@ -370,6 +349,10 @@ export default async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    addressOne: name,
+    city: ielvLocations[0] && ielvLocations[0].location[0],
+    postalCode: '97700',
+    countryCode: 'BL',
     accommodates: ielvBedrooms.length * 2,
     externalId,
   });

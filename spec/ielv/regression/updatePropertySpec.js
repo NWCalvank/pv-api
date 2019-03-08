@@ -195,60 +195,59 @@ describe('getProperty', () => {
 });
 
 describe('putDescription', () => {
+  const payload = {
+    name: MOCK_PROPERTY_NAME,
+    description: ielvDescription,
+    externalId: `${MOCK_PROPERTY_EXTERNAL_ID}`,
+    postalCode: '97700',
+  };
   it('should call the MyVR API and return the updated property', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
+
     mockMyVRClient
-      .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
+      .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`, payload)
       .reply(200, updatedProperty);
 
-    putDescription({
-      name: MOCK_PROPERTY_NAME,
-      description: ielvDescription,
-      externalId: MOCK_PROPERTY_EXTERNAL_ID,
-    }).then(data => {
+    putDescription(payload).then(data => {
       expect(data).toEqual(updatedProperty);
     });
   });
 
   it('should call the MyVR API and return an error message if the request fails', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
+
     mockMyVRClient
-      .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
+      .onPut(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`, payload)
       .reply(404);
 
-    putDescription({
-      name: MOCK_PROPERTY_NAME,
-      description: ielvDescription,
-      externalId: `${MOCK_PROPERTY_EXTERNAL_ID}`,
-    }).then(data => {
+    putDescription(payload).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
   });
 });
 
 describe('postProperty', () => {
+  const payload = {
+    name: MOCK_PROPERTY_NAME,
+    description: ielvDescription,
+    externalId: MOCK_PROPERTY_EXTERNAL_ID,
+    postalCode: '97700',
+  };
   it('should call the MyVR API and return the updated property', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
-    mockMyVRClient.onPost(`/properties/`).reply(200, updatedProperty);
 
-    postProperty({
-      name: MOCK_PROPERTY_NAME,
-      description: ielvDescription,
-      externalId: MOCK_PROPERTY_EXTERNAL_ID,
-    }).then(data => {
+    mockMyVRClient.onPost(`/properties/`, payload).reply(200, updatedProperty);
+
+    postProperty(payload).then(data => {
       expect(data).toEqual(updatedProperty);
     });
   });
 
   it('should call the MyVR API and return an error message if the request fails', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
-    mockMyVRClient.onPost(`/properties/`).reply(404);
+    mockMyVRClient.onPost(`/properties/`, payload).reply(404);
 
-    postProperty({
-      name: MOCK_PROPERTY_NAME,
-      description: ielvDescription,
-      externalId: `${MOCK_PROPERTY_EXTERNAL_ID}`,
-    }).then(data => {
+    postProperty(payload).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
   });
