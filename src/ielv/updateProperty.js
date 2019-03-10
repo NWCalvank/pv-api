@@ -16,6 +16,13 @@ export const seasonalMinimum = str => {
   return mapping[key];
 };
 
+export const formatLatLon = locationString =>
+  locationString
+    .split('.')
+    .map(str => str.slice(0, 10))
+    .join('.')
+    .slice(0, 14);
+
 export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
   if (bedSize.includes('king')) {
@@ -325,6 +332,8 @@ export default async ({
   services: ielvServices,
   restrictions: ielvRestrictions,
   rooms: [{ room: ielvRooms }],
+  latitude: [ielvLatitude],
+  longitude: [ielvLongitude],
   prices: [ielvPrices],
 }) => {
   const externalId = `IELV_${ielvId}`;
@@ -340,6 +349,7 @@ export default async ({
   // TODO: Add shortcode
   await method({
     name,
+    shortCode: `II${ielvId.slice(-3)}`,
     description: buildDescription({
       description: ielvDescription,
       locations: ielvLocations,
@@ -349,6 +359,8 @@ export default async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    lat: formatLatLon(ielvLatitude),
+    lon: formatLatLon(ielvLongitude),
     addressOne: name,
     city: ielvLocations[0] && ielvLocations[0].location[0],
     postalCode: '97700',
