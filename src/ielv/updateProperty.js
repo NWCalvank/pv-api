@@ -148,6 +148,35 @@ export const postProperty = payload =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
+export const getExistingGroups = externalId =>
+  myVRClient
+    .get(`/property-memberships/?property=${externalId}`)
+    .then(({ data }) => data)
+    .catch(logError);
+
+export const addToGroup = externalId =>
+  myVRClient
+    .post(`/property-memberships/`, {
+      group: process.env.MY_VR_GROUP_KEY,
+      property: externalId,
+    })
+    .then(({ data }) => data)
+    .catch(
+      // TODO: Improve this error message
+      ({ response: { status } }) =>
+        status === 404 ? NOT_FOUND : `Status: ${status}`
+    );
+
+export const conditionallyAddToGroup = async externalId => {
+  const existingGroups = await getExistingGroups(externalId);
+
+  const existingGroupKeys = existingGroups.results.map(({ key }) => key);
+
+  return existingGroupKeys.includes(process.env.MY_VR_GROUP_KEY)
+    ? Promise.resolve()
+    : addToGroup(externalId);
+};
+
 export const getExistingBedrooms = externalId =>
   myVRClient
     .get(`/rooms/?property=${externalId}`)
@@ -186,7 +215,9 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   );
 
   // Create all rooms from IELV Data
-  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId)));
+  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
+    logError
+  );
 };
 
 export const syncRates = async (externalId, ielvPrices) => {
@@ -346,7 +377,6 @@ export default async ({
 
   // POST new property or PUT existing
   const method = property === NOT_FOUND ? postProperty : putDescription;
-  // TODO: Add shortcode
   await method({
     name,
     shortCode: `II${ielvId.slice(-3)}`,
@@ -368,6 +398,9 @@ export default async ({
     accommodates: ielvBedrooms.length * 2,
     externalId,
   });
+
+  // Add Property to Group if needed
+  await conditionallyAddToGroup(externalId);
 
   // POST new bedrooms
   await postBedrooms(externalId, ielvRooms);

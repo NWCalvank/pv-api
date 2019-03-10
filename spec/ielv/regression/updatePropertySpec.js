@@ -5,6 +5,9 @@ import updateProperty, {
   getProperty,
   putDescription,
   postProperty,
+  getExistingGroups,
+  addToGroup,
+  conditionallyAddToGroup,
   getExistingBedrooms,
   createMyVRRoom,
   postBedrooms,
@@ -15,6 +18,7 @@ import { myVRClient } from '../../../src/api/client';
 // Mock JSON Response Data
 import ielvProperty from '../../mockData/ielv/property.json';
 import myVRProperty from '../../mockData/myvr/property.json';
+import myVRPropertyMembership from '../../mockData/myvr/property-membership.json';
 import myVRRoom from '../../mockData/myvr/room.json';
 import myVRRooms from '../../mockData/myvr/rooms.json';
 import myVRRates from '../../mockData/myvr/rates.json';
@@ -37,6 +41,14 @@ const updatedProperty = {
   description: ielvDescription,
   bedCount: 1,
   beds: [],
+};
+const otherMembership = {
+  ...myVRPropertyMembership.results[0],
+  key: process.env.MY_VR_GROUP_KEY,
+};
+const myVRPropertyMembershipWithKey = {
+  ...myVRPropertyMembership,
+  results: [...myVRPropertyMembership.results, otherMembership],
 };
 
 // Helpers
@@ -78,6 +90,11 @@ describe('updateProperty', () => {
       .onPost(`/rooms/`)
       .replyOnce(200, mockMyVRRoom('room4'))
       // END -- postBedrooms API call stubs
+
+      // START -- addToGroup API call stubs - already in group
+      .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRPropertyMembershipWithKey)
+      // END -- addToGroup API call stubs
 
       // START -- syncRates API call stubs
       .onGet(`/rates/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
@@ -151,6 +168,16 @@ describe('updateProperty', () => {
       .onPost(`/rates/`)
       .replyOnce(200)
       // END -- syncRates API call stubs
+
+      // START -- addToGroup API call stubs - not in group
+      .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRPropertyMembership)
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200)
+      // END -- addToGroup API call stubs
 
       // START -- setFees API call stubs
       .onGet(`/fees/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
@@ -249,6 +276,63 @@ describe('postProperty', () => {
 
     postProperty(payload).then(data => {
       expect(data).toEqual(NOT_FOUND);
+    });
+  });
+});
+
+describe('getExistingGroups', () => {
+  it('should GET to the property-memberships API endpoint', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200);
+    getExistingGroups(MOCK_PROPERTY_EXTERNAL_ID);
+  });
+});
+
+describe('addToGroup', () => {
+  it('should POST to the property-memberships API endpoint', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200);
+    addToGroup(MOCK_PROPERTY_EXTERNAL_ID);
+  });
+});
+
+describe('conditionallyAddToGroup', () => {
+  it('should call addToGroup if not already in group', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRPropertyMembership)
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200, 'Post Response');
+
+    conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
+      expect(data).toEqual('Post Response');
+    });
+  });
+
+  it('should not call addToGroup if already in group', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+    mockMyVRClient
+      .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRPropertyMembershipWithKey)
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200, 'Post Response');
+
+    conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
+      expect(data).toBeUndefined();
     });
   });
 });

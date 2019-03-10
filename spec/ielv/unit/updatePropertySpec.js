@@ -5,6 +5,7 @@ import {
   parseBedSize,
   sortRates,
   seasonalMinimum,
+  formatLatLon,
 } from '../../../src/ielv/updateProperty';
 
 // Mock JSON Response Data
@@ -30,6 +31,16 @@ describe('seasonalMinimum', () => {
     expect(seasonalMinimum('High Season 2020')).toEqual(7);
     expect(seasonalMinimum('Christmas 2020 - New Year 2021')).toEqual(14);
     expect(seasonalMinimum('Thanksgiving 2019')).toEqual(14);
+  });
+});
+
+describe('formatLatLon', () => {
+  it('should parse the location string and return a lat/lon to 10 decimal places', () => {
+    expect(formatLatLon('170.8859861111111')).toEqual('170.8859861111');
+  });
+
+  it('should parse the location string and return a lat/lon to 13 digits', () => {
+    expect(formatLatLon('17.8859861111111')).toEqual('17.8859861111');
   });
 });
 
