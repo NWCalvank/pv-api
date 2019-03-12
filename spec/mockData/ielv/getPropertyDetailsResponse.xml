@@ -60,7 +60,7 @@
   </restrictions>
   <photos count="51">
     <photo index="1" title="" height="1200" width="1920">https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg</photo>
-    <photo index="2" title="" height="1200" width="1920">https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg</photo>
+    <photo index="2" title="" height="1200" width="1920">http://s1.1zoom.me/b5050/934/Penguins_Sea_Sky_King_435441_1920x1200.jpg</photo>
   </photos>
   <rooms>
     <room type="Living room" index="1">
@@ -84,7 +84,7 @@
     </room>
     <room type="Bedroom" index="2">
       <view>Ocean</view>
-      <bed_size>King 6.56 &#215; 6.56</bed_size>
+      <bed_size>Queen 6.56 &#215; 6.56</bed_size>
       <equipment>air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower</equipment>
       <other>* Separated bungalow
 * Private terrace
@@ -93,7 +93,7 @@
     </room>
     <room type="Bedroom" index="3">
       <view>Ocean</view>
-      <bed_size>King 6.56 &#215; 6.56</bed_size>
+      <bed_size>Twin 6.56 &#215; 6.56</bed_size>
       <equipment>air conditioning, fan, mosquito net, safe, bathroom with shower</equipment>
       <other>* iPod Dock
 * Windows looking into the pool</other>

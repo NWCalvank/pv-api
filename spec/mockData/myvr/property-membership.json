@@ -1,0 +1,30 @@
+{
+  "count": 1,
+  "limit": 20,
+  "offset": 0,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "uri": "https://api.myvr.com/v1/property-memberships/88c23fc34e5b6e1f/",
+      "key": "88c23fc34e5b6e1f",
+      "group": {
+        "externalId": null,
+        "name": "All Properties",
+        "key": "23141322dca02eed",
+        "uri": "https://api.myvr.com/v1/property-groups/23141322dca02eed/"
+      },
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property-2-5",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "position": 950,
+      "created": "2019-02-23T23:01:31Z",
+      "modified": "2019-02-23T23:01:31Z"
+    }
+  ]
+}

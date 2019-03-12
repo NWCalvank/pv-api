@@ -1,0 +1,53 @@
+{
+  "count": 2,
+  "limit": 20,
+  "offset": 0,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "uri": "https://api.myvr.com/v1/photos/9ed566aa1858b3c403f8a85277b2b008/",
+      "id": "9ed566aa1858b3c403f8a85277b2b008",
+      "key": "9ed566aa1858b3c403f8a85277b2b008",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property-2-5",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "downloadUrl": "//image.myvr.com/7083cb6aec067335/364b9c4ffc69a83be5315d8af09e572d.jpg",
+      "altText": null,
+      "caption": null,
+      "title": null,
+      "uploadStatus": "successful",
+      "uploadError": "",
+      "created": "2019-03-11T02:05:23Z",
+      "modified": "2019-03-11T02:05:46Z"
+    },
+    {
+      "uri": "https://api.myvr.com/v1/photos/eb0064626f401dcfc025f2a61bbc4d5b/",
+      "id": "eb0064626f401dcfc025f2a61bbc4d5b",
+      "key": "eb0064626f401dcfc025f2a61bbc4d5b",
+      "externalId": null,
+      "property": {
+        "name": "Mock Property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property-2-5",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "downloadUrl": "//image.myvr.com/7083cb6aec067335/penguins-sea-sky-king-435441-1920x1200.jpg",
+      "altText": null,
+      "caption": null,
+      "title": null,
+      "uploadStatus": "successful",
+      "uploadError": "",
+      "created": "2019-03-11T02:05:24Z",
+      "modified": "2019-03-11T02:05:50Z"
+    }
+  ]
+}

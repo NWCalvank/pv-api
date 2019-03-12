@@ -57,9 +57,9 @@ Children min age:12 years old</li><li>Pets: unauthorized</li><li>* Children unde
 <div><strong>Living room </strong></div><ul><li>view: Ocean</li><li>equipment: fan</li><li>other: * iPod Dock</li></ul></div><br/><div><div><strong>Kitchen </strong></div><ul><li>equipped_for: 10 people</li><li>equipment: fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher</li><li>other: * Ice maker
 * Nespresso coffee machine</li></ul></div><br/><div><div><strong>Bedroom </strong></div><ul><li>view: Garden</li><li>bed_size: King 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower</li><li>other: * 2 dressings
 * iPod Dock
-* Dish Network</li></ul></div><br/><div><div><strong>Bedroom 2</strong></div><ul><li>view: Ocean</li><li>bed_size: King 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower</li><li>other: * Separated bungalow
+* Dish Network</li></ul></div><br/><div><div><strong>Bedroom 2</strong></div><ul><li>view: Ocean</li><li>bed_size: Queen 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower</li><li>other: * Separated bungalow
 * Private terrace
 
-* I pod dock</li></ul></div><br/><div><div><strong>Bedroom 3</strong></div><ul><li>view: Ocean</li><li>bed_size: King 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, bathroom with shower</li><li>other: * iPod Dock
+* I pod dock</li></ul></div><br/><div><div><strong>Bedroom 3</strong></div><ul><li>view: Ocean</li><li>bed_size: Twin 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, bathroom with shower</li><li>other: * iPod Dock
 * Windows looking into the pool</li></ul></div><br/><div><div><strong>Bedroom 4</strong></div><ul><li>view: Garden</li><li>bed_size: King or 2 Twins beds 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, bathroom with shower</li>
 <div>

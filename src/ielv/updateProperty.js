@@ -3,6 +3,65 @@ import { logError } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
+export const seasonalMinimum = str => {
+  const mapping = {
+    low: 5,
+    high: 7,
+    holiday: 14,
+  };
+  let key = 'holiday';
+  if (str.toLowerCase().includes('low')) key = 'low';
+  if (str.toLowerCase().includes('high')) key = 'high';
+
+  return mapping[key];
+};
+
+export const formatLatLon = locationString =>
+  locationString
+    .split('.')
+    .map(str => str.slice(0, 10))
+    .join('.')
+    .slice(0, 14);
+
+export const parseBedSize = rawBedSize => {
+  const bedSize = rawBedSize.toLowerCase();
+  if (bedSize.includes('king')) {
+    return 'king';
+  }
+
+  if (bedSize.includes('full')) {
+    return 'full';
+  }
+
+  if (bedSize.includes('queen')) {
+    return 'queen';
+  }
+
+  if (bedSize.includes('twin')) {
+    return 'twin';
+  }
+
+  if (bedSize.includes('crib')) {
+    return 'crib';
+  }
+
+  return 'other';
+};
+
+export const sortRates = prices =>
+  prices.price
+    .reduce(
+      (acc, { bedroom_count: bedroomCount }) => [
+        ...acc,
+        ...bedroomCount.map(
+          ({ _: priceString }) =>
+            Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100
+        ),
+      ],
+      []
+    )
+    .sort((a, b) => a - b);
+
 const htmlStyle = (items, title) => `
 <br/>
 
@@ -69,21 +128,37 @@ export const getProperty = externalId =>
       ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
     );
 
-export const putDescription = ({
-  name,
-  description,
-  accommodates,
-  externalId,
-}) =>
+export const putDescription = payload =>
   myVRClient
-    .put(`/properties/${externalId}/`, {
-      // required
-      name,
-      // relevant payload
-      description,
-      accommodates,
-      // becomes null if not set explicitly
-      externalId,
+    .put(`/properties/${payload.externalId}/`, payload)
+    .then(({ data }) => data)
+    .catch(
+      // TODO: Improve this error message
+      ({ response: { status } }) =>
+        status === 404 ? NOT_FOUND : `Status: ${status}`
+    );
+
+export const postProperty = payload =>
+  myVRClient
+    .post(`/properties/`, payload)
+    .then(({ data }) => data)
+    .catch(
+      // TODO: Improve this error message
+      ({ response: { status } }) =>
+        status === 404 ? NOT_FOUND : `Status: ${status}`
+    );
+
+export const getExistingGroups = externalId =>
+  myVRClient
+    .get(`/property-memberships/?property=${externalId}`)
+    .then(({ data }) => data)
+    .catch(logError);
+
+export const addToGroup = externalId =>
+  myVRClient
+    .post(`/property-memberships/`, {
+      group: process.env.MY_VR_GROUP_KEY,
+      property: externalId,
     })
     .then(({ data }) => data)
     .catch(
@@ -92,23 +167,15 @@ export const putDescription = ({
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
-export const postProperty = ({ name, description, accommodates, externalId }) =>
-  myVRClient
-    .post(`/properties/`, {
-      // required
-      name,
-      // relevant payload
-      description,
-      accommodates,
-      // becomes null if not set explicitly
-      externalId,
-    })
-    .then(({ data }) => data)
-    .catch(
-      // TODO: Improve this error message
-      ({ response: { status } }) =>
-        status === 404 ? NOT_FOUND : `Status: ${status}`
-    );
+export const conditionallyAddToGroup = async externalId => {
+  const existingGroups = await getExistingGroups(externalId);
+
+  const existingGroupKeys = existingGroups.results.map(({ key }) => key);
+
+  return existingGroupKeys.includes(process.env.MY_VR_GROUP_KEY)
+    ? Promise.resolve()
+    : addToGroup(externalId);
+};
 
 export const getExistingBedrooms = externalId =>
   myVRClient
@@ -116,31 +183,6 @@ export const getExistingBedrooms = externalId =>
     .then(({ data }) => data)
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(logError);
-
-export const parseBedSize = rawBedSize => {
-  const bedSize = rawBedSize.toLowerCase();
-  if (bedSize.includes('king')) {
-    return 'king';
-  }
-
-  if (bedSize.includes('full')) {
-    return 'full';
-  }
-
-  if (bedSize.includes('queen')) {
-    return 'queen';
-  }
-
-  if (bedSize.includes('twin')) {
-    return 'twin';
-  }
-
-  if (bedSize.includes('crib')) {
-    return 'crib';
-  }
-
-  return 'other';
-};
 
 export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
   myVRClient
@@ -173,10 +215,12 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   );
 
   // Create all rooms from IELV Data
-  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId)));
+  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
+    logError
+  );
 };
 
-const syncRates = async (externalId, ielvPrices) => {
+export const syncRates = async (externalId, ielvPrices) => {
   // GET existing rates
   const existingRates = await myVRClient
     .get(`/rates/?property=${externalId}`)
@@ -192,6 +236,22 @@ const syncRates = async (externalId, ielvPrices) => {
   ).catch(
     ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
   );
+
+  const [lowestRate] = sortRates(ielvPrices);
+
+  // POST base rate
+  myVRClient
+    .post(`/rates/`, {
+      // required
+      property: externalId,
+      // relevant payload
+      baseRate: true,
+      minStay: 5,
+      repeat: false,
+      nightly: lowestRate,
+      weekendNight: lowestRate,
+    })
+    .catch(logError);
 
   // POST all current rates
   return Promise.all(
@@ -210,7 +270,7 @@ const syncRates = async (externalId, ielvPrices) => {
           name: priceName,
           startDate,
           endDate,
-          minStay: 1,
+          minStay: seasonalMinimum(priceName),
           repeat: false,
           nightly: amountInCents,
           weekendNight: amountInCents,
@@ -293,6 +353,39 @@ const setFees = async externalId => {
   return Promise.all([taxPromise, serviceChargePromise]).catch(logError);
 };
 
+const addPhotos = async (externalId, ielvPhotos) => {
+  // Get existing photos
+  const existingPhotos = await myVRClient
+    .get(`/photos/?property=${externalId}`)
+    .then(({ data }) => data)
+    .catch(logError);
+
+  const parseFilename = path => {
+    const filename = path.match(/([^/]+$)/)[0];
+    return filename ? filename.toLowerCase().replace(/-/g, '_') : '';
+  };
+
+  // Extract existing photo filename
+  const existingFilenames = existingPhotos.results.map(({ downloadUrl }) =>
+    parseFilename(downloadUrl)
+  );
+
+  // Add New Photos
+  await Promise.all(
+    ielvPhotos.photo.map(
+      ({ _: sourceUrl }) =>
+        existingFilenames.includes(parseFilename(sourceUrl))
+          ? Promise.resolve()
+          : myVRClient
+              .post('/photos/', {
+                property: externalId,
+                sourceUrl,
+              })
+              .catch(logError)
+    )
+  ).catch(logError);
+};
+
 export default async ({
   id: [ielvId],
   title: [name],
@@ -302,7 +395,10 @@ export default async ({
   facilities: ielvFacilities,
   services: ielvServices,
   restrictions: ielvRestrictions,
+  photos: [ielvPhotos],
   rooms: [{ room: ielvRooms }],
+  latitude: [ielvLatitude],
+  longitude: [ielvLongitude],
   prices: [ielvPrices],
 }) => {
   const externalId = `IELV_${ielvId}`;
@@ -315,9 +411,9 @@ export default async ({
 
   // POST new property or PUT existing
   const method = property === NOT_FOUND ? postProperty : putDescription;
-  // TODO: Add shortcode
   await method({
     name,
+    shortCode: `II${ielvId.slice(-3)}`,
     description: buildDescription({
       description: ielvDescription,
       locations: ielvLocations,
@@ -327,9 +423,18 @@ export default async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    lat: formatLatLon(ielvLatitude),
+    lon: formatLatLon(ielvLongitude),
+    addressOne: name,
+    city: ielvLocations[0] && ielvLocations[0].location[0],
+    postalCode: '97700',
+    countryCode: 'BL',
     accommodates: ielvBedrooms.length * 2,
     externalId,
   });
+
+  // Add Property to Group if needed
+  await conditionallyAddToGroup(externalId);
 
   // POST new bedrooms
   await postBedrooms(externalId, ielvRooms);
@@ -339,6 +444,9 @@ export default async ({
 
   // Set standard fees
   await setFees(externalId);
+
+  // Add new photos
+  await addPhotos(externalId, ielvPhotos);
 
   return getProperty(externalId);
 };
