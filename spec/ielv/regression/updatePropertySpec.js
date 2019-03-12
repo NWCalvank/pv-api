@@ -23,6 +23,7 @@ import myVRRoom from '../../mockData/myvr/room.json';
 import myVRRooms from '../../mockData/myvr/rooms.json';
 import myVRRates from '../../mockData/myvr/rates.json';
 import myVRFees from '../../mockData/myvr/fees.json';
+import myVRPhotos from '../../mockData/myvr/photos.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -126,6 +127,11 @@ describe('updateProperty', () => {
       .replyOnce(200)
       // END -- setFees API call stubs
 
+      // START -- addPhotos API call stubs all photos exist
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRPhotos)
+      // END -- addPhotos API call stubs
+
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);
 
@@ -187,6 +193,23 @@ describe('updateProperty', () => {
       .onPost(`/fees/`)
       .replyOnce(200)
       // END -- setFees API call stubs
+
+      // START -- addPhotos API call stubs no existing photos
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, { results: [] })
+      .onPost('/photos/', {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        sourceUrl:
+          'https://i.pinimg.com/originals/36/4b/9c/364b9c4ffc69a83be5315d8af09e572d.jpg',
+      })
+      .replyOnce(200)
+      .onPost('/photos/', {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        sourceUrl:
+          'http://s1.1zoom.me/b5050/934/Penguins_Sea_Sky_King_435441_1920x1200.jpg',
+      })
+      .replyOnce(200)
+      // END -- addPhotos API call stubs
 
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
       .replyOnce(200, updatedProperty);

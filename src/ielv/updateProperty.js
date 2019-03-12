@@ -353,6 +353,39 @@ const setFees = async externalId => {
   return Promise.all([taxPromise, serviceChargePromise]).catch(logError);
 };
 
+const addPhotos = async (externalId, ielvPhotos) => {
+  // Get existing photos
+  const existingPhotos = await myVRClient
+    .get(`/photos/?property=${externalId}`)
+    .then(({ data }) => data)
+    .catch(logError);
+
+  const parseFilename = path => {
+    const filename = path.match(/([^/]+$)/)[0];
+    return filename ? filename.toLowerCase().replace(/-/g, '_') : '';
+  };
+
+  // Extract existing photo filename
+  const existingFilenames = existingPhotos.results.map(({ downloadUrl }) =>
+    parseFilename(downloadUrl)
+  );
+
+  // Add New Photos
+  await Promise.all(
+    ielvPhotos.photo.map(
+      ({ _: sourceUrl }) =>
+        existingFilenames.includes(parseFilename(sourceUrl))
+          ? Promise.resolve()
+          : myVRClient
+              .post('/photos/', {
+                property: externalId,
+                sourceUrl,
+              })
+              .catch(logError)
+    )
+  ).catch(logError);
+};
+
 export default async ({
   id: [ielvId],
   title: [name],
@@ -362,6 +395,7 @@ export default async ({
   facilities: ielvFacilities,
   services: ielvServices,
   restrictions: ielvRestrictions,
+  photos: [ielvPhotos],
   rooms: [{ room: ielvRooms }],
   latitude: [ielvLatitude],
   longitude: [ielvLongitude],
@@ -410,6 +444,9 @@ export default async ({
 
   // Set standard fees
   await setFees(externalId);
+
+  // Add new photos
+  await addPhotos(externalId, ielvPhotos);
 
   return getProperty(externalId);
 };
