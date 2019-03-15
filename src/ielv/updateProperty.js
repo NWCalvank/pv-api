@@ -151,6 +151,45 @@ export const postProperty = payload =>
         status === 404 ? NOT_FOUND : `Status: ${status}`
     );
 
+export const updateCalendarEvents = async (externalId, ielvAvailability) => {
+  const EVENT_TITLE = 'IELV';
+
+  const existingCalendarEvents = await myVRClient
+    .get(`/calendar-events/?property=${externalId}`)
+    .then(({ data }) => data)
+    .then(({ results }) => results)
+    .catch(logError);
+
+  // Delete existing IELV events
+  await Promise.all(
+    existingCalendarEvents
+      .filter(({ title }) => title === EVENT_TITLE)
+      .map(({ key }) =>
+        myVRClient.delete(`/calendar-events/${key}/`).catch(logError)
+      )
+  ).catch(logError);
+
+  // Add latest IELV events
+  return Promise.all(
+    ielvAvailability.period
+      .filter(({ status: [statusString] }) =>
+        parseAvailabilityStatus(statusString)
+      )
+      .map(({ status: [statusString], $: { from, to } }) =>
+        myVRClient
+          .post('/calendar-events/', {
+            property: externalId,
+            startDate: from,
+            endDate: to,
+            status: parseAvailabilityStatus(statusString),
+            title: EVENT_TITLE,
+          })
+          .then(({ data }) => data)
+          .catch(logError)
+      )
+  ).catch(logError);
+};
+
 export const getExistingGroups = externalId =>
   myVRClient
     .get(`/property-memberships/?property=${externalId}`)
@@ -437,43 +476,10 @@ export default async ({
     externalId,
   });
 
+  // TODO: Ensure that all of these functions return Promises and then fire
+  // them all concurrently here, wrapped in Promise.all()
   // Update availability
-  const EVENT_TITLE = 'IELV';
-
-  const existingCalendarEvents = await myVRClient
-    .get(`/calendar-events/?property=${externalId}`)
-    .then(({ data }) => data)
-    .then(({ results }) => results)
-    .catch(logError);
-
-  // Delete existing IELV events
-  await Promise.all(
-    existingCalendarEvents
-      .filter(({ title }) => title === EVENT_TITLE)
-      .map(({ key }) =>
-        myVRClient.delete(`/calendar-events/${key}/`).catch(logError)
-      )
-  ).catch(logError);
-
-  // Add latest IELV events
-  await Promise.all(
-    ielvAvailability.period
-      .filter(({ status: [statusString] }) =>
-        parseAvailabilityStatus(statusString)
-      )
-      .map(({ status: [statusString], $: { from, to } }) =>
-        myVRClient
-          .post('/calendar-events/', {
-            property: externalId,
-            startDate: from,
-            endDate: to,
-            status: parseAvailabilityStatus(statusString),
-            title: EVENT_TITLE,
-          })
-          .then(({ data }) => data)
-          .catch(logError)
-      )
-  ).catch(logError);
+  await updateCalendarEvents(externalId, ielvAvailability);
 
   // Add Property to Group if needed
   await conditionallyAddToGroup(externalId);

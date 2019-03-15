@@ -5,6 +5,7 @@ import updateProperty, {
   getProperty,
   putDescription,
   postProperty,
+  updateCalendarEvents,
   getExistingGroups,
   addToGroup,
   conditionallyAddToGroup,
@@ -35,6 +36,7 @@ const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
 const [ielvDescription] = ielvProperty.description;
 const ielvRooms = ielvProperty.rooms[0].room;
 const [ielvRates] = ielvProperty.prices;
+const [ielvAvailability] = ielvProperty.availability;
 // Updated Details - No Bedrooms
 const tmpProperty = { ...myVRProperty, description: ielvDescription };
 // Fully-updated Property
@@ -347,6 +349,72 @@ describe('postProperty', () => {
     postProperty(payload).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
+  });
+});
+
+describe('updateCalendarEvents', () => {
+  it('should call the MyVR calendar-events endpoint to check and create reservations', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+
+    mockMyVRClient
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, { results: [] })
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200);
+
+    updateCalendarEvents(MOCK_PROPERTY_EXTERNAL_ID, ielvAvailability).then(
+      data => {
+        expect(data).not.toBeUndefined();
+      }
+    );
+  });
+
+  it('should call the MyVR calendar-events endpoint to delete existing IELV reservations', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+
+    mockMyVRClient
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRCalendarEvents)
+      .onDelete(`/calendar-events/event1/`)
+      .replyOnce(200)
+      .onDelete(`/calendar-events/event2/`)
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200);
+
+    updateCalendarEvents(MOCK_PROPERTY_EXTERNAL_ID, ielvAvailability).then(
+      data => {
+        expect(data).not.toBeUndefined();
+      }
+    );
   });
 });
 
