@@ -1,5 +1,5 @@
 import { myVRClient } from '../api/client';
-import { logError } from '../util/logger';
+import { logError, log } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -47,6 +47,9 @@ export const parseBedSize = rawBedSize => {
 
   return 'other';
 };
+
+export const parseAvailabilityStatus = status =>
+  status.toLowerCase() === 'reserved' ? 'reserved' : false;
 
 export const sortRates = prices =>
   prices.price
@@ -390,6 +393,7 @@ export default async ({
   id: [ielvId],
   title: [name],
   description: [ielvDescription],
+  availability: [ielvAvailability],
   locations: ielvLocations,
   pools: ielvPools,
   facilities: ielvFacilities,
@@ -433,6 +437,44 @@ export default async ({
     externalId,
   });
 
+  // Update availability
+  const EVENT_TITLE = 'IELV';
+
+  const existingCalendarEvents = await myVRClient
+    .get(`/calendar-events/?property=${externalId}`)
+    .then(({ data }) => data)
+    .then(({ results }) => results)
+    .catch(logError);
+
+  // Delete existing IELV events
+  await Promise.all(
+    existingCalendarEvents
+      .filter(({ title }) => title === EVENT_TITLE)
+      .map(({ key }) =>
+        myVRClient.delete(`/calendar-events/${key}/`).catch(logError)
+      )
+  ).catch(logError);
+
+  // Add latest IELV events
+  await Promise.all(
+    ielvAvailability.period
+      .filter(({ status: [statusString] }) =>
+        parseAvailabilityStatus(statusString)
+      )
+      .map(({ status: [statusString], $: { from, to } }) =>
+        myVRClient
+          .post('/calendar-events/', {
+            property: externalId,
+            startDate: from,
+            endDate: to,
+            status: parseAvailabilityStatus(statusString),
+            title: EVENT_TITLE,
+          })
+          .then(({ data }) => data)
+          .catch(logError)
+      )
+  ).catch(logError);
+
   // Add Property to Group if needed
   await conditionallyAddToGroup(externalId);
 
@@ -448,5 +490,6 @@ export default async ({
   // Add new photos
   await addPhotos(externalId, ielvPhotos);
 
+  log(`${externalId} - Updates Complete...`);
   return getProperty(externalId);
 };

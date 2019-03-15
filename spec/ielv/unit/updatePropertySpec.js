@@ -3,6 +3,7 @@ import fs from 'fs';
 import {
   buildDescription,
   parseBedSize,
+  parseAvailabilityStatus,
   sortRates,
   seasonalMinimum,
   formatLatLon,
@@ -51,6 +52,13 @@ describe('parseBedSize', () => {
     expect(parseBedSize('Twin 3.56 × 6.56')).toEqual('twin');
     expect(parseBedSize('Queen 4.56 × 6.56')).toEqual('queen');
     expect(parseBedSize('4.56 × 6.56')).toEqual('other');
+  });
+});
+
+describe('parseAvailabilityStatus', () => {
+  it('should parse the status and return false or a valid MyVR reservation string', () => {
+    expect(parseAvailabilityStatus('Reserved')).toEqual('reserved');
+    expect(parseAvailabilityStatus('Free')).toEqual(false);
   });
 });
 
