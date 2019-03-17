@@ -1,13 +1,17 @@
 import dotenv from 'dotenv';
 
+import { logError } from '../util/logger';
 import getAllProperties from './getAllProperties';
 import getPropertyDetails from './getPropertyDetails';
+import updateProperty from './updateProperty';
 
 dotenv.config();
 
-// TODO: Possibly export and add coverage
 const getAllPropertyDetails = properties =>
   Promise.all(properties.map(({ id: [ielvId] }) => getPropertyDetails(ielvId)));
+
+const updateAllProperties = properties =>
+  Promise.all(properties.map(updateProperty));
 
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
@@ -27,8 +31,8 @@ export default function(req, res) {
   });
 
   // Promise response for function invocation
-  return getAllProperties().then(getAllPropertyDetails);
-
-  // Uncomment for real testing
-  // updateProperty(mockPropertyJSONHere);
+  return getAllProperties()
+    .then(getAllPropertyDetails)
+    .then(updateAllProperties)
+    .catch(logError);
 }
