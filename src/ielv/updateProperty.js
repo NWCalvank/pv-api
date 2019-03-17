@@ -127,29 +127,19 @@ export const getProperty = externalId =>
   myVRClient
     .get(`/properties/${externalId}/`)
     .then(({ data }) => data)
-    .catch(
-      ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
-    );
+    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
 export const putDescription = payload =>
   myVRClient
     .put(`/properties/${payload.externalId}/`, payload)
     .then(({ data }) => data)
-    .catch(
-      // TODO: Improve this error message
-      ({ response: { status } }) =>
-        status === 404 ? NOT_FOUND : `Status: ${status}`
-    );
+    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
 export const postProperty = payload =>
   myVRClient
     .post(`/properties/`, payload)
     .then(({ data }) => data)
-    .catch(
-      // TODO: Improve this error message
-      ({ response: { status } }) =>
-        status === 404 ? NOT_FOUND : `Status: ${status}`
-    );
+    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
 export const updateCalendarEvents = async (externalId, ielvAvailability) => {
   const EVENT_TITLE = 'IELV';
@@ -203,11 +193,7 @@ export const addToGroup = externalId =>
       property: externalId,
     })
     .then(({ data }) => data)
-    .catch(
-      // TODO: Improve this error message
-      ({ response: { status } }) =>
-        status === 404 ? NOT_FOUND : `Status: ${status}`
-    );
+    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
 export const conditionallyAddToGroup = async externalId => {
   const existingGroups = await getExistingGroups(externalId);
@@ -268,16 +254,12 @@ export const syncRates = async (externalId, ielvPrices) => {
     .get(`/rates/?property=${externalId}`)
     .then(({ data }) => data)
     .then(({ results }) => results)
-    .catch(
-      ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
-    );
+    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
   // DELETE existing rates
   await Promise.all(
     existingRates.map(async ({ key }) => myVRClient.delete(`/rates/${key}/`))
-  ).catch(
-    ({ response: { status } }) => (status === 404 ? NOT_FOUND : 'Other error')
-  );
+  ).catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
   const [lowestRate] = sortRates(ielvPrices);
 
@@ -413,7 +395,7 @@ const addPhotos = async (externalId, ielvPhotos) => {
   );
 
   // Add New Photos
-  await Promise.all(
+  return Promise.all(
     ielvPhotos.photo.map(
       ({ _: sourceUrl }) =>
         existingFilenames.includes(parseFilename(sourceUrl))
@@ -476,25 +458,26 @@ export default async ({
     externalId,
   });
 
-  // TODO: Ensure that all of these functions return Promises and then fire
-  // them all concurrently here, wrapped in Promise.all()
-  // Update availability
-  await updateCalendarEvents(externalId, ielvAvailability);
+  // Concurrently send all updates to property record
+  await Promise.all([
+    // Update availability
+    updateCalendarEvents(externalId, ielvAvailability),
 
-  // Add Property to Group if needed
-  await conditionallyAddToGroup(externalId);
+    // Add Property to Group if needed
+    conditionallyAddToGroup(externalId),
 
-  // POST new bedrooms
-  await postBedrooms(externalId, ielvRooms);
+    // POST new bedrooms
+    postBedrooms(externalId, ielvRooms),
 
-  // Sync rates
-  await syncRates(externalId, ielvPrices);
+    // Sync rates
+    syncRates(externalId, ielvPrices),
 
-  // Set standard fees
-  await setFees(externalId);
+    // Set standard fees
+    setFees(externalId),
 
-  // Add new photos
-  await addPhotos(externalId, ielvPhotos);
+    // Add new photos
+    addPhotos(externalId, ielvPhotos),
+  ]);
 
   log(`${externalId} - Updates Complete...`);
   return getProperty(externalId);
