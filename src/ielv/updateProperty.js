@@ -1,5 +1,5 @@
 import { myVRClient } from '../api/client';
-import { logError, log } from '../util/logger';
+import { log } from '../util/logger';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -148,16 +148,16 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
     .get(`/calendar-events/?property=${externalId}`)
     .then(({ data }) => data)
     .then(({ results }) => results)
-    .catch(logError);
+    .catch(log.error);
 
   // Delete existing IELV events
   await Promise.all(
     existingCalendarEvents
       .filter(({ title }) => title === EVENT_TITLE)
       .map(({ key }) =>
-        myVRClient.delete(`/calendar-events/${key}/`).catch(logError)
+        myVRClient.delete(`/calendar-events/${key}/`).catch(log.error)
       )
-  ).catch(logError);
+  ).catch(log.error);
 
   // Add latest IELV events
   return Promise.all(
@@ -175,16 +175,16 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
             title: EVENT_TITLE,
           })
           .then(({ data }) => data)
-          .catch(logError)
+          .catch(log.error)
       )
-  ).catch(logError);
+  ).catch(log.error);
 };
 
 export const getExistingGroups = externalId =>
   myVRClient
     .get(`/property-memberships/?property=${externalId}`)
     .then(({ data }) => data)
-    .catch(logError);
+    .catch(log.error);
 
 export const addToGroup = externalId =>
   myVRClient
@@ -210,7 +210,7 @@ export const getExistingBedrooms = externalId =>
     .get(`/rooms/?property=${externalId}`)
     .then(({ data }) => data)
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
-    .catch(logError);
+    .catch(log.error);
 
 export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
   myVRClient
@@ -227,7 +227,7 @@ export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
       ],
     })
     .then(({ data }) => data)
-    .catch(logError);
+    .catch(log.error);
 
 export const postBedrooms = async (externalId, ielvRooms) => {
   // Check existing bedrooms
@@ -239,12 +239,12 @@ export const postBedrooms = async (externalId, ielvRooms) => {
 
   // Remove all existing MyVR rooms for current property
   await existingMyVRBedrooms.map(({ key }) =>
-    myVRClient.delete(`/rooms/${key}/`).catch(logError)
+    myVRClient.delete(`/rooms/${key}/`).catch(log.error)
   );
 
   // Create all rooms from IELV Data
   return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
-    logError
+    log.error
   );
 };
 
@@ -275,7 +275,7 @@ export const syncRates = async (externalId, ielvPrices) => {
       nightly: lowestRate,
       weekendNight: lowestRate,
     })
-    .catch(logError);
+    .catch(log.error);
 
   // POST all current rates
   return Promise.all(
@@ -299,7 +299,7 @@ export const syncRates = async (externalId, ielvPrices) => {
           nightly: amountInCents,
           weekendNight: amountInCents,
         })
-        .catch(logError);
+        .catch(log.error);
     })
   );
 };
@@ -309,7 +309,7 @@ const setFees = async externalId => {
     .get(`/fees/?property=${externalId}`)
     .then(({ data }) => data)
     .then(({ results }) => results)
-    .catch(logError);
+    .catch(log.error);
 
   const TAX = 'Tax';
   const SERVICE_CHARGE = 'Service Charge';
@@ -374,7 +374,7 @@ const setFees = async externalId => {
       )
     : myVRClient.post(`/fees/`, serviceChargePayload);
 
-  return Promise.all([taxPromise, serviceChargePromise]).catch(logError);
+  return Promise.all([taxPromise, serviceChargePromise]).catch(log.error);
 };
 
 const addPhotos = async (externalId, ielvPhotos) => {
@@ -382,7 +382,7 @@ const addPhotos = async (externalId, ielvPhotos) => {
   const existingPhotos = await myVRClient
     .get(`/photos/?property=${externalId}`)
     .then(({ data }) => data)
-    .catch(logError);
+    .catch(log.error);
 
   const parseFilename = path => {
     const filename = path.match(/([^/]+$)/)[0];
@@ -405,12 +405,12 @@ const addPhotos = async (externalId, ielvPhotos) => {
                 property: externalId,
                 sourceUrl,
               })
-              .catch(logError)
+              .catch(log.error)
     )
-  ).catch(logError);
+  ).catch(log.error);
 };
 
-export default async ({
+export const updateProperty = async ({
   id: [ielvId],
   title: [name],
   description: [ielvDescription],
@@ -479,6 +479,27 @@ export default async ({
     addPhotos(externalId, ielvPhotos),
   ]);
 
-  log(`${externalId} - Updates Complete...`);
+  log.noTest(`${externalId} - Updates Complete...`);
   return getProperty(externalId);
 };
+
+export default function(req, res) {
+  if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
+    const reason = 'Invalid Authorization header';
+    // HTTP Response for incoming request
+    res.send({ status: 401, status_message: 'Unauthorized', message: reason });
+
+    // Promise response for function invocation
+    return Promise.reject(new Error(reason));
+  }
+
+  // HTTP Response for incoming request
+  res.send({
+    status: 200,
+    status_message: 'OK',
+    message: 'Updating property function successfully invoked',
+  });
+
+  // Promise response for function invocation
+  return updateProperty(req.body).catch(log.error);
+}

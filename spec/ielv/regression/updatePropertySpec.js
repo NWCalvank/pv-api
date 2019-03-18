@@ -1,6 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 
-import updateProperty, {
+import {
+  updateProperty,
   NOT_FOUND,
   getProperty,
   putDescription,

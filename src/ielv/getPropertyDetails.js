@@ -14,4 +14,4 @@ export default id =>
         },
       }) => property
     )
-    .catch(log);
+    .catch(log.error);

@@ -1,7 +1,6 @@
 // Import all action handlers
-import ielv from './ielv/main';
+import ielvMain from './ielv/main';
+import ielvUpdateProperty from './ielv/updateProperty';
 
 // Export all action handlers
-// Temporarily disable while there's only one module
-// eslint-disable-next-line import/prefer-default-export
-export { ielv };
+export { ielvMain, ielvUpdateProperty };

@@ -1,17 +1,20 @@
 import dotenv from 'dotenv';
 
-import { logError } from '../util/logger';
+import { log } from '../util/logger';
+import { gcpClient } from '../api/client';
 import getAllProperties from './getAllProperties';
 import getPropertyDetails from './getPropertyDetails';
-import updateProperty from './updateProperty';
 
 dotenv.config();
 
 const getAllPropertyDetails = properties =>
   Promise.all(properties.map(({ id: [ielvId] }) => getPropertyDetails(ielvId)));
 
-const updateAllProperties = properties =>
-  Promise.all(properties.map(updateProperty));
+const triggerUpdateProperty = property =>
+  gcpClient.post('/ielvUpdateProperty', property);
+
+const triggerUpdateEachProperty = properties =>
+  Promise.all(properties.map(triggerUpdateProperty)).catch(log.error);
 
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
@@ -33,6 +36,6 @@ export default function(req, res) {
   // Promise response for function invocation
   return getAllProperties()
     .then(getAllPropertyDetails)
-    .then(updateAllProperties)
-    .catch(logError);
+    .then(triggerUpdateEachProperty)
+    .catch(log.error);
 }
