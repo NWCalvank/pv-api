@@ -1,13 +1,20 @@
 import dotenv from 'dotenv';
 
+import { log } from '../util/logger';
+import { gcpClient } from '../api/client';
 import getAllProperties from './getAllProperties';
 import getPropertyDetails from './getPropertyDetails';
 
 dotenv.config();
 
-// TODO: Possibly export and add coverage
 const getAllPropertyDetails = properties =>
   Promise.all(properties.map(({ id: [ielvId] }) => getPropertyDetails(ielvId)));
+
+const triggerUpdateProperty = property =>
+  gcpClient.post('/ielvUpdateProperty', property);
+
+const triggerUpdateEachProperty = properties =>
+  Promise.all(properties.map(triggerUpdateProperty)).catch(log.error);
 
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
@@ -27,8 +34,8 @@ export default function(req, res) {
   });
 
   // Promise response for function invocation
-  return getAllProperties().then(getAllPropertyDetails);
-
-  // Uncomment for real testing
-  // updateProperty(mockPropertyJSONHere);
+  return getAllProperties()
+    .then(getAllPropertyDetails)
+    .then(triggerUpdateEachProperty)
+    .catch(log.error);
 }

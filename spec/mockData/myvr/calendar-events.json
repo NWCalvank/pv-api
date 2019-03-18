@@ -1,0 +1,47 @@
+{
+  "count": 2,
+  "limit": 20,
+  "offset": 0,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "uri": "https://api.myvr.com/v1/events/a1f2f170d4656b48/",
+      "id": "event1",
+      "key": "event1",
+      "property": {
+        "name": "Mock property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "startDate": "2018-12-29",
+      "endDate": "2019-01-11",
+      "status": "reserved",
+      "title": "IELV",
+      "editable": true,
+      "reservation": null
+    },
+    {
+      "uri": "https://api.myvr.com/v1/events/3a0bb6b7a4465316/",
+      "id": "event2",
+      "key": "event2",
+      "property": {
+        "name": "Mock property",
+        "uri": "https://api.myvr.com/v1/properties/property1234/",
+        "slug": "aaa-property",
+        "externalId": "IELV_1234",
+        "key": "property1234",
+        "id": "property1234"
+      },
+      "startDate": "2019-01-15",
+      "endDate": "2019-01-20",
+      "status": "reserved",
+      "title": "IELV",
+      "editable": true,
+      "reservation": null
+    }
+  ]
+}

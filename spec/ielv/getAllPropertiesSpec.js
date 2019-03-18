@@ -10,13 +10,12 @@ const ielvGetAllResponse = fs.readFileSync(
   'utf8'
 );
 
-// Initialize the custom axios instance
-const mockIelvClient = new MockAdapter(ielvClient);
-
-mockIelvClient.onGet('/villas.xml').reply(200, ielvGetAllResponse);
-
 describe('getAllProperties', () => {
   it('should call the IELV API and return the response', () => {
+    const mockIelvClient = new MockAdapter(ielvClient);
+
+    mockIelvClient.onGet('/villas.xml').reply(200, ielvGetAllResponse);
+
     getAllProperties().then(data => {
       expect(data).toEqual([
         {

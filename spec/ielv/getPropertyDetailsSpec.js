@@ -13,17 +13,17 @@ const ielvGetPropertyDetailsResponse = fs.readFileSync(
   'utf8'
 );
 
-// Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
-const mockIelvClient = new MockAdapter(ielvClient);
-
-// GET Stubs
-mockIelvClient
-  .onGet(`/villas.xml/${MOCK_PROPERTY_ID}`)
-  .reply(200, ielvGetPropertyDetailsResponse);
 
 describe('getPropertyDetails', () => {
   it('should call the IELV API with a property ID and return the response', () => {
+    const mockIelvClient = new MockAdapter(ielvClient);
+
+    // GET Stubs
+    mockIelvClient
+      .onGet(`/villas.xml/${MOCK_PROPERTY_ID}`)
+      .reply(200, ielvGetPropertyDetailsResponse);
+
     getPropertyDetails(MOCK_PROPERTY_ID).then(data => {
       expect(data).toEqual(ielvProperty);
     });

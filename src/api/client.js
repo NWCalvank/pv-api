@@ -13,3 +13,11 @@ export const myVRClient = axios.create({
     Authorization: `Bearer ${process.env.MY_VR_API_KEY}`,
   },
 });
+
+export const gcpClient = axios.create({
+  // TODO: Add this to .env
+  baseURL: 'http://localhost:8080', // process.env.GCP_BASE_URL,
+  headers: {
+    Authorization: process.env.MY_VR_API_KEY,
+  },
+});

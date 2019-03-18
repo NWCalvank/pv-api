@@ -1,10 +1,12 @@
 import MockAdapter from 'axios-mock-adapter';
 
-import updateProperty, {
+import {
+  updateProperty,
   NOT_FOUND,
   getProperty,
   putDescription,
   postProperty,
+  updateCalendarEvents,
   getExistingGroups,
   addToGroup,
   conditionallyAddToGroup,
@@ -24,6 +26,7 @@ import myVRRooms from '../../mockData/myvr/rooms.json';
 import myVRRates from '../../mockData/myvr/rates.json';
 import myVRFees from '../../mockData/myvr/fees.json';
 import myVRPhotos from '../../mockData/myvr/photos.json';
+import myVRCalendarEvents from '../../mockData/myvr/calendar-events.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -34,6 +37,7 @@ const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
 const [ielvDescription] = ielvProperty.description;
 const ielvRooms = ielvProperty.rooms[0].room;
 const [ielvRates] = ielvProperty.prices;
+const [ielvAvailability] = ielvProperty.availability;
 // Updated Details - No Bedrooms
 const tmpProperty = { ...myVRProperty, description: ielvDescription };
 // Fully-updated Property
@@ -127,6 +131,31 @@ describe('updateProperty', () => {
       .replyOnce(200)
       // END -- setFees API call stubs
 
+      // START -- updateCalendarEvents call stubs
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRCalendarEvents)
+      .onDelete(`/calendar-events/event1/`)
+      .replyOnce(200)
+      .onDelete(`/calendar-events/event2/`)
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      // END -- updateCalendarEvents call stubs
+
       // START -- addPhotos API call stubs all photos exist
       .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPhotos)
@@ -193,6 +222,27 @@ describe('updateProperty', () => {
       .onPost(`/fees/`)
       .replyOnce(200)
       // END -- setFees API call stubs
+
+      // START -- updateCalendarEvents call stubs
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, { results: [] })
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      // END -- updateCalendarEvents call stubs
 
       // START -- addPhotos API call stubs no existing photos
       .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
@@ -300,6 +350,72 @@ describe('postProperty', () => {
     postProperty(payload).then(data => {
       expect(data).toEqual(NOT_FOUND);
     });
+  });
+});
+
+describe('updateCalendarEvents', () => {
+  it('should call the MyVR calendar-events endpoint to check and create reservations', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+
+    mockMyVRClient
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, { results: [] })
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200);
+
+    updateCalendarEvents(MOCK_PROPERTY_EXTERNAL_ID, ielvAvailability).then(
+      data => {
+        expect(data).not.toBeUndefined();
+      }
+    );
+  });
+
+  it('should call the MyVR calendar-events endpoint to delete existing IELV reservations', () => {
+    const mockMyVRClient = new MockAdapter(myVRClient);
+
+    mockMyVRClient
+      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .replyOnce(200, myVRCalendarEvents)
+      .onDelete(`/calendar-events/event1/`)
+      .replyOnce(200)
+      .onDelete(`/calendar-events/event2/`)
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2018-12-29',
+        endDate: '2019-01-11',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200)
+      .onPost(`/calendar-events/`, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        startDate: '2019-01-15',
+        endDate: '2019-01-20',
+        status: 'reserved',
+        title: 'IELV',
+      })
+      .replyOnce(200);
+
+    updateCalendarEvents(MOCK_PROPERTY_EXTERNAL_ID, ielvAvailability).then(
+      data => {
+        expect(data).not.toBeUndefined();
+      }
+    );
   });
 });
 

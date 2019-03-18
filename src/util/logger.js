@@ -1,10 +1,19 @@
 import { TEST_ENV, DEV_ENV } from '../globals';
 
 // alias console methods
-export const { log, warn } = console;
+const { log: _log } = console;
 
-// Environment-dependent logging
-export const logError = msg => {
-  if (TEST_ENV || DEV_ENV) throw new Error(msg);
-  else log(msg);
+// Temporarily disable while there's only one module
+// eslint-disable-next-line import/prefer-default-export
+export const log = {
+  always: msg => _log(msg),
+  noTest: msg => {
+    if (!TEST_ENV) {
+      _log(msg);
+    }
+  },
+  error: msg => {
+    if (TEST_ENV || DEV_ENV) throw new Error(msg);
+    else _log(msg);
+  },
 };

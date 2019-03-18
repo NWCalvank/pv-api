@@ -8,4 +8,4 @@ export default () =>
     .get('/villas.xml')
     .then(({ data }) => convert.xmlDataToJSON(data))
     .then(({ ielv: { villa } }) => villa)
-    .catch(log);
+    .catch(log.error);

@@ -7,6 +7,7 @@
 
 const http = require('http');
 const express = require('express');
+const bodyParser = require('body-parser');
 const { log } = require('./util/logger');
 
 const port = 8080;
@@ -22,8 +23,11 @@ const port = 8080;
 const setUpApp = functions => {
   const newApp = express();
 
+  // Middleware
+  newApp.use(bodyParser.json());
+
   Object.keys(functions).forEach(func => {
-    log(`registered http://localhost:${port}/${func}`);
+    log.always(`registered http://localhost:${port}/${func}`);
 
     newApp.post(`/${func}`, functions[func]);
   });
