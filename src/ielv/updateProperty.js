@@ -272,8 +272,8 @@ export const syncRates = async (externalId, ielvPrices) => {
       baseRate: true,
       minStay: 5,
       repeat: false,
-      nightly: lowestRate,
-      weekendNight: lowestRate,
+      nightly: Math.round(lowestRate / 7),
+      weekendNight: Math.round(lowestRate / 7),
     })
     .catch(log.error);
 
@@ -296,8 +296,8 @@ export const syncRates = async (externalId, ielvPrices) => {
           endDate,
           minStay: seasonalMinimum(priceName),
           repeat: false,
-          nightly: amountInCents,
-          weekendNight: amountInCents,
+          nightly: Math.round(amountInCents / 7),
+          weekendNight: Math.round(amountInCents / 7),
         })
         .catch(log.error);
     })
