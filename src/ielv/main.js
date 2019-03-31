@@ -34,8 +34,11 @@ export default function(req, res) {
   });
 
   // Promise response for function invocation
-  return getAllProperties()
-    .then(getAllPropertyDetails)
-    .then(triggerUpdateEachProperty)
-    .catch(log.error);
+  return (
+    getAllProperties()
+      .then(getAllPropertyDetails)
+      .then(triggerUpdateEachProperty)
+      // log and don't re-throw at the top level
+      .catch(log.noTest)
+  );
 }

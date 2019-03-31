@@ -1,5 +1,7 @@
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
+// import { promiseSerial } from '../util/fp';
+// import amenitiesList from './amenities';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -410,6 +412,30 @@ const addPhotos = async (externalId, ielvPhotos) => {
   ).catch(log.error);
 };
 
+/* const setAmenities = async externalId => {
+  const existingAmenities = await myVRClient
+    .get(`/property-amenities/?property=${externalId}&limit=100`)
+    .then(({ data }) => data)
+    .then(({ results }) => results.map(({ amenity: { key } }) => key))
+    .catch(log.error);
+
+  const amenitiesToUpdate = amenitiesList
+    .map(({ key }) => key)
+    .filter(key => !existingAmenities.includes(key));
+
+  const applicativeRequests = amenitiesToUpdate.map(amenityKey => () =>
+    myVRClient
+      .post(`/property-amenities/`, {
+        property: externalId,
+        amenity: amenityKey,
+        count: 1,
+      })
+      .catch(log.error)
+  );
+
+  return promiseSerial(applicativeRequests).catch(log.error);
+}; */
+
 export const updateProperty = async ({
   id: [ielvId],
   title: [name],
@@ -458,26 +484,27 @@ export const updateProperty = async ({
     externalId,
   });
 
-  // Concurrently send all updates to property record
-  await Promise.all([
-    // Update availability
-    updateCalendarEvents(externalId, ielvAvailability),
+  // API limitations require that these be sequential
+  // Update availability
+  await updateCalendarEvents(externalId, ielvAvailability);
 
-    // Add Property to Group if needed
-    conditionallyAddToGroup(externalId),
+  // Add Property to Group if needed
+  await conditionallyAddToGroup(externalId);
 
-    // POST new bedrooms
-    postBedrooms(externalId, ielvRooms),
+  // POST new bedrooms
+  await postBedrooms(externalId, ielvRooms);
 
-    // Sync rates
-    syncRates(externalId, ielvPrices),
+  // Sync rates
+  await syncRates(externalId, ielvPrices);
 
-    // Set standard fees
-    setFees(externalId),
+  // Set standard fees
+  await setFees(externalId);
 
-    // Add new photos
-    addPhotos(externalId, ielvPhotos),
-  ]);
+  // Add new photos
+  await addPhotos(externalId, ielvPhotos);
+
+  // Set Amenities
+  // await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
   return getProperty(externalId);
