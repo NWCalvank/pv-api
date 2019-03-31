@@ -1,7 +1,7 @@
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
-// import { promiseSerial } from '../util/fp';
-// import amenitiesList from './amenities';
+import { promiseSerial } from '../util/fp';
+import amenitiesList from './amenities';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -412,7 +412,7 @@ const addPhotos = async (externalId, ielvPhotos) => {
   ).catch(log.error);
 };
 
-/* const setAmenities = async externalId => {
+const setAmenities = async externalId => {
   const existingAmenities = await myVRClient
     .get(`/property-amenities/?property=${externalId}&limit=100`)
     .then(({ data }) => data)
@@ -434,7 +434,7 @@ const addPhotos = async (externalId, ielvPhotos) => {
   );
 
   return promiseSerial(applicativeRequests).catch(log.error);
-}; */
+};
 
 export const updateProperty = async ({
   id: [ielvId],
@@ -504,7 +504,7 @@ export const updateProperty = async ({
   await addPhotos(externalId, ielvPhotos);
 
   // Set Amenities
-  // await setAmenities(externalId);
+  await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
   return getProperty(externalId);

@@ -27,6 +27,7 @@ import myVRRates from '../../mockData/myvr/rates.json';
 import myVRFees from '../../mockData/myvr/fees.json';
 import myVRPhotos from '../../mockData/myvr/photos.json';
 import myVRCalendarEvents from '../../mockData/myvr/calendar-events.json';
+import myVRAmenities from '../../mockData/myvr/amenities.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -162,7 +163,13 @@ describe('updateProperty', () => {
       // END -- addPhotos API call stubs
 
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
-      .replyOnce(200, updatedProperty);
+      .replyOnce(200, updatedProperty)
+
+      // START -- setAmenities all amenities exist
+      .onGet(
+        `/property-amenities/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=100`
+      )
+      .replyOnce(200, myVRAmenities);
 
     updateProperty(ielvProperty).then(res => {
       expect(res).toEqual(updatedProperty);
@@ -262,7 +269,20 @@ describe('updateProperty', () => {
       // END -- addPhotos API call stubs
 
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
-      .replyOnce(200, updatedProperty);
+      .replyOnce(200, updatedProperty)
+
+      // START -- setAmenities call stubs
+      .onGet(
+        `/property-amenities/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=100`
+      )
+      // Missing 1 amenity
+      .replyOnce(200, { results: myVRAmenities.results.slice(1) })
+      .onPost(/property-amenities/, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        amenity: 'e433c1fce3967c6a',
+        count: 1,
+      })
+      .replyOnce(200);
 
     updateProperty(ielvProperty).then(res => {
       expect(res).toEqual(updatedProperty);
