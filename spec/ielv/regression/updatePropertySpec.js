@@ -527,7 +527,7 @@ describe('createMyVRRoom', () => {
 
     createMyVRRoom(MOCK_PROPERTY_EXTERNAL_ID)({
       bed_size: ['King 6.56 × 6.56'],
-    }).then(data => {
+    })().then(data => {
       expect(data).toEqual(myVRRoom);
     });
   });
