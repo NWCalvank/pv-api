@@ -5,7 +5,7 @@ import { log } from '../util/logger';
 
 export default id =>
   ielvClient
-    .get(`/villas.xml/${id}`)
+    .get(`/villa.xml/${id}`)
     .then(({ data }) => convert.xmlDataToJSON(data))
     .then(
       ({

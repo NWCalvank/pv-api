@@ -1,5 +1,7 @@
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
+import { promiseSerial } from '../util/fp';
+import amenitiesList from './amenities';
 
 export const NOT_FOUND = 'Not Found';
 
@@ -151,21 +153,21 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
     .catch(log.error);
 
   // Delete existing IELV events
-  await Promise.all(
+  await promiseSerial(
     existingCalendarEvents
       .filter(({ title }) => title === EVENT_TITLE)
-      .map(({ key }) =>
+      .map(({ key }) => () =>
         myVRClient.delete(`/calendar-events/${key}/`).catch(log.error)
       )
   ).catch(log.error);
 
   // Add latest IELV events
-  return Promise.all(
+  return promiseSerial(
     ielvAvailability.period
       .filter(({ status: [statusString] }) =>
         parseAvailabilityStatus(statusString)
       )
-      .map(({ status: [statusString], $: { from, to } }) =>
+      .map(({ status: [statusString], $: { from, to } }) => () =>
         myVRClient
           .post('/calendar-events/', {
             property: externalId,
@@ -212,7 +214,7 @@ export const getExistingBedrooms = externalId =>
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(log.error);
 
-export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) =>
+export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) => () =>
   myVRClient
     .post(`/rooms/`, {
       // required
@@ -243,7 +245,7 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   );
 
   // Create all rooms from IELV Data
-  return Promise.all(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
+  return promiseSerial(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
     log.error
   );
 };
@@ -257,8 +259,8 @@ export const syncRates = async (externalId, ielvPrices) => {
     .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
   // DELETE existing rates
-  await Promise.all(
-    existingRates.map(async ({ key }) => myVRClient.delete(`/rates/${key}/`))
+  await promiseSerial(
+    existingRates.map(({ key }) => () => myVRClient.delete(`/rates/${key}/`))
   ).catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
   const [lowestRate] = sortRates(ielvPrices);
@@ -272,14 +274,14 @@ export const syncRates = async (externalId, ielvPrices) => {
       baseRate: true,
       minStay: 5,
       repeat: false,
-      nightly: lowestRate,
-      weekendNight: lowestRate,
+      nightly: Math.round(lowestRate / 7),
+      weekendNight: Math.round(lowestRate / 7),
     })
     .catch(log.error);
 
   // POST all current rates
-  return Promise.all(
-    ielvPrices.price.map(async ({ $, bedroom_count: bedroomCount }) => {
+  return promiseSerial(
+    ielvPrices.price.map(({ $, bedroom_count: bedroomCount }) => () => {
       const { name: priceName, to: endDate, from: startDate } = $;
       const { _: priceString } = bedroomCount[bedroomCount.length - 1];
       const amountInCents =
@@ -296,8 +298,8 @@ export const syncRates = async (externalId, ielvPrices) => {
           endDate,
           minStay: seasonalMinimum(priceName),
           repeat: false,
-          nightly: amountInCents,
-          weekendNight: amountInCents,
+          nightly: Math.round(amountInCents / 7),
+          weekendNight: Math.round(amountInCents / 7),
         })
         .catch(log.error);
     })
@@ -395,19 +397,42 @@ const addPhotos = async (externalId, ielvPhotos) => {
   );
 
   // Add New Photos
-  return Promise.all(
-    ielvPhotos.photo.map(
-      ({ _: sourceUrl }) =>
-        existingFilenames.includes(parseFilename(sourceUrl))
-          ? Promise.resolve()
-          : myVRClient
-              .post('/photos/', {
-                property: externalId,
-                sourceUrl,
-              })
-              .catch(log.error)
+  return promiseSerial(
+    ielvPhotos.photo.map(({ _: sourceUrl }) => () =>
+      existingFilenames.includes(parseFilename(sourceUrl))
+        ? Promise.resolve()
+        : myVRClient
+            .post('/photos/', {
+              property: externalId,
+              sourceUrl,
+            })
+            .catch(log.error)
     )
   ).catch(log.error);
+};
+
+const setAmenities = async externalId => {
+  const existingAmenities = await myVRClient
+    .get(`/property-amenities/?property=${externalId}&limit=100`)
+    .then(({ data }) => data)
+    .then(({ results }) => results.map(({ amenity: { key } }) => key))
+    .catch(log.error);
+
+  const amenitiesToUpdate = amenitiesList
+    .map(({ key }) => key)
+    .filter(key => !existingAmenities.includes(key));
+
+  const applicativeRequests = amenitiesToUpdate.map(amenityKey => () =>
+    myVRClient
+      .post(`/property-amenities/`, {
+        property: externalId,
+        amenity: amenityKey,
+        count: 1,
+      })
+      .catch(log.error)
+  );
+
+  return promiseSerial(applicativeRequests).catch(log.error);
 };
 
 export const updateProperty = async ({
@@ -458,26 +483,27 @@ export const updateProperty = async ({
     externalId,
   });
 
-  // Concurrently send all updates to property record
-  await Promise.all([
-    // Update availability
-    updateCalendarEvents(externalId, ielvAvailability),
+  // API limitations require that these be sequential
+  // Update availability
+  await updateCalendarEvents(externalId, ielvAvailability);
 
-    // Add Property to Group if needed
-    conditionallyAddToGroup(externalId),
+  // Add Property to Group if needed
+  await conditionallyAddToGroup(externalId);
 
-    // POST new bedrooms
-    postBedrooms(externalId, ielvRooms),
+  // POST new bedrooms
+  await postBedrooms(externalId, ielvRooms);
 
-    // Sync rates
-    syncRates(externalId, ielvPrices),
+  // Sync rates
+  await syncRates(externalId, ielvPrices);
 
-    // Set standard fees
-    setFees(externalId),
+  // Set standard fees
+  await setFees(externalId);
 
-    // Add new photos
-    addPhotos(externalId, ielvPhotos),
-  ]);
+  // Add new photos
+  await addPhotos(externalId, ielvPhotos);
+
+  // Set Amenities
+  await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
   return getProperty(externalId);

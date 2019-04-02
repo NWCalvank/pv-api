@@ -27,6 +27,7 @@ import myVRRates from '../../mockData/myvr/rates.json';
 import myVRFees from '../../mockData/myvr/fees.json';
 import myVRPhotos from '../../mockData/myvr/photos.json';
 import myVRCalendarEvents from '../../mockData/myvr/calendar-events.json';
+import myVRAmenities from '../../mockData/myvr/amenities.json';
 
 // Initialize the custom axios instance
 const MOCK_PROPERTY_ID = 1234;
@@ -162,7 +163,13 @@ describe('updateProperty', () => {
       // END -- addPhotos API call stubs
 
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
-      .replyOnce(200, updatedProperty);
+      .replyOnce(200, updatedProperty)
+
+      // START -- setAmenities all amenities exist
+      .onGet(
+        `/property-amenities/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=100`
+      )
+      .replyOnce(200, myVRAmenities);
 
     updateProperty(ielvProperty).then(res => {
       expect(res).toEqual(updatedProperty);
@@ -262,7 +269,20 @@ describe('updateProperty', () => {
       // END -- addPhotos API call stubs
 
       .onGet(`/properties/${MOCK_PROPERTY_EXTERNAL_ID}/`)
-      .replyOnce(200, updatedProperty);
+      .replyOnce(200, updatedProperty)
+
+      // START -- setAmenities call stubs
+      .onGet(
+        `/property-amenities/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=100`
+      )
+      // Missing 1 amenity
+      .replyOnce(200, { results: myVRAmenities.results.slice(1) })
+      .onPost(/property-amenities/, {
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+        amenity: 'e433c1fce3967c6a',
+        count: 1,
+      })
+      .replyOnce(200);
 
     updateProperty(ielvProperty).then(res => {
       expect(res).toEqual(updatedProperty);
@@ -507,7 +527,7 @@ describe('createMyVRRoom', () => {
 
     createMyVRRoom(MOCK_PROPERTY_EXTERNAL_ID)({
       bed_size: ['King 6.56 × 6.56'],
-    }).then(data => {
+    })().then(data => {
       expect(data).toEqual(myVRRoom);
     });
   });
@@ -574,8 +594,8 @@ describe('syncRates', () => {
         baseRate: true,
         minStay: 5,
         repeat: false,
-        nightly: 2000000,
-        weekendNight: 2000000,
+        nightly: 285714,
+        weekendNight: 285714,
       })
       // Create all other rates
       .replyOnce(200)
@@ -587,8 +607,8 @@ describe('syncRates', () => {
         endDate: '2019-11-23',
         minStay: 5,
         repeat: false,
-        nightly: 2500000,
-        weekendNight: 2500000,
+        nightly: 357143,
+        weekendNight: 357143,
       })
       .replyOnce(200)
       .onPost(`/rates/`, {
@@ -599,8 +619,8 @@ describe('syncRates', () => {
         endDate: '2019-04-16',
         minStay: 7,
         repeat: false,
-        nightly: 3500000,
-        weekendNight: 3500000,
+        nightly: 500000,
+        weekendNight: 500000,
       })
       .replyOnce(200)
       .onPost(`/rates/`, {
@@ -611,8 +631,8 @@ describe('syncRates', () => {
         endDate: '2020-04-16',
         minStay: 7,
         repeat: false,
-        nightly: 3500000,
-        weekendNight: 3500000,
+        nightly: 500000,
+        weekendNight: 500000,
       })
       .replyOnce(200);
 

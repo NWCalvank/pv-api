@@ -21,7 +21,7 @@ describe('getPropertyDetails', () => {
 
     // GET Stubs
     mockIelvClient
-      .onGet(`/villas.xml/${MOCK_PROPERTY_ID}`)
+      .onGet(`/villa.xml/${MOCK_PROPERTY_ID}`)
       .reply(200, ielvGetPropertyDetailsResponse);
 
     getPropertyDetails(MOCK_PROPERTY_ID).then(data => {
