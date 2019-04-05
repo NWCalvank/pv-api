@@ -1,5 +1,6 @@
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
+import { triggerFetchDetails } from '../api/triggers';
 import { promiseSerial } from '../util/fp';
 import amenitiesList from './amenities';
 
@@ -466,6 +467,7 @@ export const updateProperty = async ({
   const property = await getProperty(externalId);
 
   // POST new property or PUT existing
+  log.noTest(`creating property ${externalId}`);
   const method = property === NOT_FOUND ? postProperty : putDescription;
   await method({
     name,
@@ -492,30 +494,39 @@ export const updateProperty = async ({
 
   // API limitations require that these be sequential
   // Update availability
+  log.noTest(`updateCalendarEvents ${externalId}`);
   await updateCalendarEvents(externalId, ielvAvailability);
 
   // Add Property to Group if needed
+  log.noTest(`conditionallyAddToGroup ${externalId}`);
   await conditionallyAddToGroup(externalId);
 
   // POST new bedrooms
+  log.noTest(`postBedrooms ${externalId}`);
   await postBedrooms(externalId, ielvRooms);
 
   // Sync rates
+  log.noTest(`syncRates ${externalId}`);
   await syncRates(externalId, ielvPrices);
 
   // Set standard fees
+  log.noTest(`setFees ${externalId}`);
   await setFees(externalId);
 
   // Add new photos
+  log.noTest(`addPhotos ${externalId}`);
   await addPhotos(externalId, ielvPhotos);
 
   // Set Amenities
+  log.noTest(`setAmenities ${externalId}`);
   await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
   return getProperty(externalId);
 };
 
+// Accepts an object of {propertyKeys, propertyDetails} where propertyKeys is
+// the list of properties not yet updated
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
     const reason = 'Invalid Authorization header';
@@ -533,6 +544,13 @@ export default function(req, res) {
     message: 'Updating property function successfully invoked',
   });
 
+  const { propertyDetails, propertyKeys } = req.body;
+
   // Promise response for function invocation
-  return updateProperty(req.body).catch(log.error);
+  return updateProperty(propertyDetails)
+    .then(() => triggerFetchDetails(propertyKeys))
+    .catch(err => {
+      log.error(err);
+      triggerFetchDetails(propertyKeys);
+    });
 }
