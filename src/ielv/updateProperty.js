@@ -67,7 +67,7 @@ export const sortRates = prices =>
     )
     .sort((a, b) => a - b);
 
-const htmlStyle = (items, title) => `
+const htmlStyle = (items = [], title) => `
 <br/>
 
 <div><strong>${title}</strong></div>
@@ -188,10 +188,10 @@ export const getExistingGroups = externalId =>
     .then(({ data }) => data)
     .catch(log.error);
 
-export const addToGroup = externalId =>
+export const addToGroup = (externalId, group) =>
   myVRClient
     .post(`/property-memberships/`, {
-      group: process.env.MY_VR_GROUP_KEY,
+      group,
       property: externalId,
     })
     .then(({ data }) => data)
@@ -202,9 +202,14 @@ export const conditionallyAddToGroup = async externalId => {
 
   const existingGroupKeys = existingGroups.results.map(({ key }) => key);
 
-  return existingGroupKeys.includes(process.env.MY_VR_GROUP_KEY)
-    ? Promise.resolve()
-    : addToGroup(externalId);
+  return Promise.all(
+    [process.env.MY_VR_GROUP_KEY_1, process.env.MY_VR_GROUP_KEY_2].map(
+      group =>
+        existingGroupKeys.includes(group)
+          ? Promise.resolve()
+          : addToGroup(externalId, group)
+    )
+  );
 };
 
 export const getExistingBedrooms = externalId =>
@@ -439,6 +444,7 @@ export const updateProperty = async ({
   id: [ielvId],
   title: [name],
   description: [ielvDescription],
+  bathrooms: [ielvBathrooms],
   availability: [ielvAvailability],
   locations: ielvLocations,
   pools: ielvPools,
@@ -473,6 +479,7 @@ export const updateProperty = async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    bathrooms: Number(ielvBathrooms),
     lat: formatLatLon(ielvLatitude),
     lon: formatLatLon(ielvLongitude),
     addressOne: name,

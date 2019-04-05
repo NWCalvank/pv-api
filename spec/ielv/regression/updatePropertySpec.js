@@ -48,13 +48,21 @@ const updatedProperty = {
   bedCount: 1,
   beds: [],
 };
-const otherMembership = {
+const firstMembership = {
   ...myVRPropertyMembership.results[0],
-  key: process.env.MY_VR_GROUP_KEY,
+  key: process.env.MY_VR_GROUP_KEY_1,
+};
+const secondMembership = {
+  ...myVRPropertyMembership.results[0],
+  key: process.env.MY_VR_GROUP_KEY_2,
 };
 const myVRPropertyMembershipWithKey = {
   ...myVRPropertyMembership,
-  results: [...myVRPropertyMembership.results, otherMembership],
+  results: [
+    ...myVRPropertyMembership.results,
+    firstMembership,
+    secondMembership,
+  ],
 };
 
 // Helpers
@@ -215,7 +223,7 @@ describe('updateProperty', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembership)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200)
@@ -454,7 +462,7 @@ describe('addToGroup', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
     mockMyVRClient
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200);
@@ -469,13 +477,18 @@ describe('conditionallyAddToGroup', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembership)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200, 'Post Response')
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY_2,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200, 'Post Response');
 
     conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
-      expect(data).toEqual('Post Response');
+      data.forEach(response => expect(response).toEqual('Post Response'));
     });
   });
 
@@ -485,13 +498,13 @@ describe('conditionallyAddToGroup', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembershipWithKey)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200, 'Post Response');
 
     conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
-      expect(data).toBeUndefined();
+      data.forEach(response => expect(response).toBeUndefined());
     });
   });
 });
