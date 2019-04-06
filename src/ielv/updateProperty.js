@@ -1,7 +1,9 @@
+import path from 'path';
+
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
 import { triggerFetchDetails } from '../api/triggers';
-import { promiseSerial } from '../util/fp';
+import { promiseSerial, or } from '../util/fp';
 import amenitiesList from './amenities';
 
 export const NOT_FOUND = 'Not Found';
@@ -388,12 +390,13 @@ const setFees = async externalId => {
 const addPhotos = async (externalId, ielvPhotos) => {
   // Get existing photos
   const existingPhotos = await myVRClient
-    .get(`/photos/?property=${externalId}`)
+    .get(`/photos/?property=${externalId}&limit=200`)
     .then(({ data }) => data)
     .catch(log.error);
 
-  const parseFilename = path => {
-    const filename = path.match(/([^/]+$)/)[0];
+  // Normalize filenames
+  const parseFilename = _path => {
+    const filename = path.parse(_path).name;
     return filename ? filename.toLowerCase().replace(/-/g, '_') : '';
   };
 
@@ -402,10 +405,16 @@ const addPhotos = async (externalId, ielvPhotos) => {
     parseFilename(downloadUrl)
   );
 
+  // Handle incremented filenames (ie. foo.jpg, foo1.jpg)
+  const incrementedMatch = sourceUrl =>
+    existingFilenames
+      .map(name => name.includes(parseFilename(sourceUrl)))
+      .reduce(or, false);
+
   // Add New Photos
   return promiseSerial(
     ielvPhotos.photo.map(({ _: sourceUrl }) => () =>
-      existingFilenames.includes(parseFilename(sourceUrl))
+      existingFilenames.includes(sourceUrl) || incrementedMatch(sourceUrl)
         ? Promise.resolve()
         : myVRClient
             .post('/photos/', {

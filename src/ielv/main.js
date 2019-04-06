@@ -25,7 +25,7 @@ export default function(req, res) {
 
   // Promise response for function invocation
   return getAllProperties()
-    .then(xs => xs.slice(0, 3))
+    .then(xs => xs.slice(5, 8))
     .then(properties => {
       const propertyKeys = properties.map(({ id: [ielvId] }) => ielvId);
       triggerFetchDetails(propertyKeys);

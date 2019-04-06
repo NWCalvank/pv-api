@@ -166,7 +166,7 @@ describe('updateProperty', () => {
       // END -- updateCalendarEvents call stubs
 
       // START -- addPhotos API call stubs all photos exist
-      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`)
       .replyOnce(200, myVRPhotos)
       // END -- addPhotos API call stubs
 
@@ -260,7 +260,7 @@ describe('updateProperty', () => {
       // END -- updateCalendarEvents call stubs
 
       // START -- addPhotos API call stubs no existing photos
-      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`)
       .replyOnce(200, { results: [] })
       .onPost('/photos/', {
         property: MOCK_PROPERTY_EXTERNAL_ID,
