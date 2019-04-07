@@ -1,9 +1,14 @@
 module.exports = [
   {
     name: 'prod',
-    entry: './src/index.js',
+    entry: {
+      app: './src/index.js',
+    },
     output: {
-      filename: './app.js',
+      filename: '[name].js',
+      path: `${__dirname}/dist`,
+      libraryTarget: 'umd',
+      library: '[name]',
     },
     mode: 'production',
     node: {
@@ -16,7 +21,7 @@ module.exports = [
     name: 'dev',
     entry: {
       // Contains all modules
-      actions: './src/index.js',
+      app: './src/index.js',
       // Mock GCloud API for local dev
       server: './src/server.js',
       // Contains all tests
@@ -39,7 +44,7 @@ module.exports = [
     name: 'test',
     entry: {
       // Contains all modules
-      actions: './src/index.js',
+      app: './src/index.js',
       // Mock GCloud API for local dev
       server: './src/server.js',
       // Contains all tests
