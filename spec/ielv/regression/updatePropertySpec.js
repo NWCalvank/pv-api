@@ -141,7 +141,9 @@ describe('updateProperty', () => {
       // END -- setFees API call stubs
 
       // START -- updateCalendarEvents call stubs
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, myVRCalendarEvents)
       .onDelete(`/calendar-events/event1/`)
       .replyOnce(200)
@@ -239,7 +241,9 @@ describe('updateProperty', () => {
       // END -- setFees API call stubs
 
       // START -- updateCalendarEvents call stubs
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, { results: [] })
       .onPost(`/calendar-events/`, {
         property: MOCK_PROPERTY_EXTERNAL_ID,
@@ -386,7 +390,9 @@ describe('updateCalendarEvents', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
 
     mockMyVRClient
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, { results: [] })
       .onPost(`/calendar-events/`, {
         property: MOCK_PROPERTY_EXTERNAL_ID,
@@ -416,7 +422,9 @@ describe('updateCalendarEvents', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
 
     mockMyVRClient
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, myVRCalendarEvents)
       .onDelete(`/calendar-events/event1/`)
       .replyOnce(200)

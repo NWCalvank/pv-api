@@ -150,7 +150,7 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
   const EVENT_TITLE = 'IELV';
 
   const existingCalendarEvents = await myVRClient
-    .get(`/calendar-events/?property=${externalId}`)
+    .get(`/calendar-events/?property=${externalId}&limit=200`)
     .then(({ data }) => data)
     .then(({ results }) => results)
     .catch(log.error);
