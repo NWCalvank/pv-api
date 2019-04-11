@@ -1,10 +1,18 @@
 import { log } from '../util/logger';
-import { triggerFetchDetails, triggerUpdateProperty } from '../api/triggers';
+import { triggerFetchDetails } from '../api/triggers';
 
 import getPropertyDetails from './getPropertyDetails';
+import { gcpClient } from '../api/client';
 
-const logComplete = message => {
-  log.always(message);
+const logComplete = (res, message) => {
+  log.error(message);
+
+  res.send({
+    status: 200,
+    status_message: 'OK',
+    message,
+  });
+
   return Promise.resolve();
 };
 
@@ -19,25 +27,32 @@ export default function(req, res) {
     return Promise.reject(new Error(reason));
   }
 
-  // HTTP Response for incoming request
-  res.send({
-    status: 200,
-    status_message: 'OK',
-    message: 'Updating property function successfully invoked',
-  });
-
   const {
     propertyKeys: [propertyKey, ...otherPropertyKeys],
+    callbackURL,
   } = req.body;
 
-  // Promise response for function invocation
   return propertyKey === undefined
-    ? logComplete('All updates complete...')
+    ? logComplete(res, 'All updates complete...')
     : getPropertyDetails(propertyKey)
-        .then(triggerUpdateProperty(otherPropertyKeys))
+        .then(propertyDetails => {
+          res.send({
+            status: 200,
+            status_message: 'OK',
+            message: `IELV_${propertyKey} - Details Fetched`,
+          });
+
+          gcpClient.post(callbackURL, {
+            propertyDetails,
+            propertyKeys: otherPropertyKeys,
+          });
+        })
+
         .catch(err => {
           log.error(err);
+          res.send({ status: 400 });
+
           // Try next property
-          triggerFetchDetails(otherPropertyKeys);
+          triggerFetchDetails(otherPropertyKeys, callbackURL);
         });
 }

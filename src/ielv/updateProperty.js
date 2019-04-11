@@ -2,11 +2,17 @@ import path from 'path';
 
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
-import { triggerFetchDetails } from '../api/triggers';
+import {
+  triggerFetchDetails,
+  triggerUpdateAvailability,
+  triggerUpdateRates,
+} from '../api/triggers';
 import { promiseSerial, or } from '../util/fp';
 import amenitiesList from './amenities';
 
 export const NOT_FOUND = 'Not Found';
+
+const MY_CALLBACK_URL = '/ielvUpdateProperty';
 
 export const seasonalMinimum = str => {
   const mapping = {
@@ -146,45 +152,6 @@ export const postProperty = payload =>
     .then(({ data }) => data)
     .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
-export const updateCalendarEvents = async (externalId, ielvAvailability) => {
-  const EVENT_TITLE = 'IELV';
-
-  const existingCalendarEvents = await myVRClient
-    .get(`/calendar-events/?property=${externalId}&limit=200`)
-    .then(({ data }) => data)
-    .then(({ results }) => results)
-    .catch(log.error);
-
-  // Delete existing IELV events
-  await promiseSerial(
-    existingCalendarEvents
-      .filter(({ title }) => title === EVENT_TITLE)
-      .map(({ key }) => () =>
-        myVRClient.delete(`/calendar-events/${key}/`).catch(log.error)
-      )
-  ).catch(log.error);
-
-  // Add latest IELV events
-  return promiseSerial(
-    ielvAvailability.period
-      .filter(({ status: [statusString] }) =>
-        parseAvailabilityStatus(statusString)
-      )
-      .map(({ status: [statusString], $: { from, to } }) => () =>
-        myVRClient
-          .post('/calendar-events/', {
-            property: externalId,
-            startDate: from,
-            endDate: to,
-            status: parseAvailabilityStatus(statusString),
-            title: EVENT_TITLE,
-          })
-          .then(({ data }) => data)
-          .catch(log.error)
-      )
-  ).catch(log.error);
-};
-
 export const getExistingGroups = externalId =>
   myVRClient
     .get(`/property-memberships/?property=${externalId}`)
@@ -255,62 +222,6 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   // Create all rooms from IELV Data
   return promiseSerial(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
     log.error
-  );
-};
-
-export const syncRates = async (externalId, ielvPrices) => {
-  // GET existing rates
-  const existingRates = await myVRClient
-    .get(`/rates/?property=${externalId}`)
-    .then(({ data }) => data)
-    .then(({ results }) => results)
-    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
-
-  // DELETE existing rates
-  await promiseSerial(
-    existingRates.map(({ key }) => () => myVRClient.delete(`/rates/${key}/`))
-  ).catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
-
-  const [lowestRate] = sortRates(ielvPrices);
-
-  // POST base rate
-  myVRClient
-    .post(`/rates/`, {
-      // required
-      property: externalId,
-      // relevant payload
-      baseRate: true,
-      minStay: 5,
-      repeat: false,
-      nightly: Math.round(lowestRate / 7),
-      weekendNight: Math.round(lowestRate / 7),
-    })
-    .catch(log.error);
-
-  // POST all current rates
-  return promiseSerial(
-    ielvPrices.price.map(({ $, bedroom_count: bedroomCount }) => () => {
-      const { name: priceName, to: endDate, from: startDate } = $;
-      const { _: priceString } = bedroomCount[bedroomCount.length - 1];
-      const amountInCents =
-        Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100;
-
-      return myVRClient
-        .post(`/rates/`, {
-          // required
-          property: externalId,
-          // relevant payload
-          baseRate: false,
-          name: priceName,
-          startDate,
-          endDate,
-          minStay: seasonalMinimum(priceName),
-          repeat: false,
-          nightly: Math.round(amountInCents / 7),
-          weekendNight: Math.round(amountInCents / 7),
-        })
-        .catch(log.error);
-    })
   );
 };
 
@@ -504,7 +415,10 @@ export const updateProperty = async ({
   // API limitations require that these be sequential
   // Update availability
   log.noTest(`updateCalendarEvents ${externalId}`);
-  await updateCalendarEvents(externalId, ielvAvailability);
+  await triggerUpdateAvailability()({
+    id: [ielvId],
+    availability: [ielvAvailability],
+  });
 
   // Add Property to Group if needed
   log.noTest(`conditionallyAddToGroup ${externalId}`);
@@ -516,7 +430,10 @@ export const updateProperty = async ({
 
   // Sync rates
   log.noTest(`syncRates ${externalId}`);
-  await syncRates(externalId, ielvPrices);
+  await triggerUpdateRates()({
+    id: [ielvId],
+    prices: [ielvPrices],
+  });
 
   // Set standard fees
   log.noTest(`setFees ${externalId}`);
@@ -531,7 +448,7 @@ export const updateProperty = async ({
   await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
-  return getProperty(externalId);
+  return externalId;
 };
 
 // Accepts an object of {propertyKeys, propertyDetails} where propertyKeys is
@@ -546,20 +463,25 @@ export default function(req, res) {
     return Promise.reject(new Error(reason));
   }
 
-  // HTTP Response for incoming request
-  res.send({
-    status: 200,
-    status_message: 'OK',
-    message: 'Updating property function successfully invoked',
-  });
-
   const { propertyDetails, propertyKeys } = req.body;
 
   // Promise response for function invocation
   return updateProperty(propertyDetails)
-    .then(() => triggerFetchDetails(propertyKeys))
+    .then(externalId => {
+      res.send({
+        status: 200,
+        status_message: 'OK',
+        message: `${externalId} - Property Updated`,
+      });
+
+      if (propertyKeys) {
+        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
+      }
+    })
     .catch(err => {
       log.error(err);
-      triggerFetchDetails(propertyKeys);
+      if (propertyKeys) {
+        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
+      }
     });
 }

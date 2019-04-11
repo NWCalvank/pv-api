@@ -16,19 +16,19 @@ export default function(req, res) {
     return Promise.reject(new Error(reason));
   }
 
-  // HTTP Response for incoming request
-  res.send({
-    status: 200,
-    status_message: 'OK',
-    message: 'Function IELV successfully invoked',
-  });
-
   // Promise response for function invocation
   return getAllProperties()
-    .then(xs => xs.slice(5, 8))
+    .then(xs => xs.slice(0, 2))
     .then(properties => {
+      res.send({
+        status: 200,
+        status_message: 'OK',
+        message: 'All properties fetched. Updates initialized.',
+      });
+
       const propertyKeys = properties.map(({ id: [ielvId] }) => ielvId);
-      triggerFetchDetails(propertyKeys);
+      // TODO: Parameterize this callbackURL, such that it will initialize rate updates or calendar updates or all propertyDetails
+      triggerFetchDetails(propertyKeys, '/ielvUpdateProperty');
     })
     .catch(log.error);
 }

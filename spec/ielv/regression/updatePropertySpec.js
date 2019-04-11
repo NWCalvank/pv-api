@@ -6,16 +6,16 @@ import {
   getProperty,
   putDescription,
   postProperty,
-  updateCalendarEvents,
   getExistingGroups,
   addToGroup,
   conditionallyAddToGroup,
   getExistingBedrooms,
   createMyVRRoom,
   postBedrooms,
-  syncRates,
 } from '../../../src/ielv/updateProperty';
-import { myVRClient } from '../../../src/api/client';
+import { myVRClient, gcpClient } from '../../../src/api/client';
+import { syncRates } from '../../../src/ielv/updateRates';
+import { updateCalendarEvents } from '../../../src/ielv/updateAvailability';
 
 // Mock JSON Response Data
 import ielvProperty from '../../mockData/ielv/property.json';
@@ -30,6 +30,17 @@ import myVRCalendarEvents from '../../mockData/myvr/calendar-events.json';
 import myVRAmenities from '../../mockData/myvr/amenities.json';
 
 // Initialize the custom axios instance
+const mockGcpClient = new MockAdapter(gcpClient);
+mockGcpClient
+  .onPost('/ielvFetchDetails')
+  .reply(200)
+  .onPost('/ielvUpdateProperty')
+  .reply(200)
+  .onPost('/ielvUpdateAvailability')
+  .reply(200)
+  .onPost('/ielvUpdateRates')
+  .reply(200);
+
 const MOCK_PROPERTY_ID = 1234;
 const MOCK_PROPERTY_NAME = 'Mock Property';
 const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
@@ -182,7 +193,7 @@ describe('updateProperty', () => {
       .replyOnce(200, myVRAmenities);
 
     updateProperty(ielvProperty).then(res => {
-      expect(res).toEqual(updatedProperty);
+      expect(res).toEqual(MOCK_PROPERTY_EXTERNAL_ID);
     });
   });
 
@@ -297,7 +308,7 @@ describe('updateProperty', () => {
       .replyOnce(200);
 
     updateProperty(ielvProperty).then(res => {
-      expect(res).toEqual(updatedProperty);
+      expect(res).toEqual(MOCK_PROPERTY_EXTERNAL_ID);
     });
   });
 });
