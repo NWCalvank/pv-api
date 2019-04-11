@@ -27,8 +27,7 @@ export default function(req, res) {
       });
 
       const propertyKeys = properties.map(({ id: [ielvId] }) => ielvId);
-      // TODO: Parameterize this callbackURL, such that it will initialize rate updates or calendar updates or all propertyDetails
-      triggerFetchDetails(propertyKeys, '/ielvUpdateProperty');
+      triggerFetchDetails(propertyKeys, req.body.callbackURL);
     })
     .catch(log.error);
 }

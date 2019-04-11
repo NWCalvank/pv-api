@@ -5,7 +5,7 @@ import getPropertyDetails from './getPropertyDetails';
 import { gcpClient } from '../api/client';
 
 const logComplete = (res, message) => {
-  log.error(message);
+  log.noTest(message);
 
   res.send({
     status: 200,

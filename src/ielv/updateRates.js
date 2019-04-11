@@ -112,6 +112,7 @@ export default function(req, res) {
         message: `${externalId} - Rates Updated`,
       });
 
+      // TODO: Put this in a trailing .then() and test it
       if (propertyKeys) {
         triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
       }
