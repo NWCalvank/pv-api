@@ -456,10 +456,8 @@ export const updateProperty = async ({
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
     const reason = 'Invalid Authorization header';
-    // HTTP Response for incoming request
-    res.send({ status: 401, status_message: 'Unauthorized', message: reason });
+    res.status(401).send(reason);
 
-    // Promise response for function invocation
     return Promise.reject(new Error(reason));
   }
 
@@ -473,14 +471,12 @@ export default function(req, res) {
         status_message: 'OK',
         message: `${externalId} - Property Updated`,
       });
-
-      // TODO: Put this in a trailing .then() and test it
-      if (propertyKeys) {
-        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
-      }
     })
     .catch(err => {
       log.error(err);
+      res.status(500).send('Update error - check logs for details');
+    })
+    .then(() => {
       if (propertyKeys) {
         triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
       }

@@ -92,7 +92,7 @@ export const syncRates = async (externalId, ielvPrices) => {
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
     const reason = 'Invalid Authorization header';
-    res.send({ status: 401, status_message: 'Unauthorized', message: reason });
+    res.status(401).send(reason);
 
     return Promise.reject(new Error(reason));
   }
@@ -103,26 +103,24 @@ export default function(req, res) {
     prices: [ielvPrices],
   } = propertyDetails;
   const externalId = `IELV_${ielvId}`;
+  log.noTest(`${externalId} - Rates Update Started`);
 
   return syncRates(externalId, ielvPrices)
     .then(() => {
+      log.noTest(`${externalId} - Rates Updated`);
       res.send({
         status: 200,
         status_message: 'OK',
         message: `${externalId} - Rates Updated`,
       });
-
-      // TODO: Put this in a trailing .then() and test it
-      if (propertyKeys) {
-        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
-      }
     })
     .catch(err => {
       log.error(err);
+      res.status(500).send('Update error - check logs for details');
+    })
+    .then(() => {
       if (propertyKeys) {
         triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
       }
-
-      res.send({ status: 400 });
     });
 }
