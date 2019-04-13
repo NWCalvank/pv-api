@@ -18,7 +18,6 @@ export default function(req, res) {
 
   // Promise response for function invocation
   return getAllProperties()
-    .then(xs => xs.slice(0, 2))
     .then(properties => {
       res.send({
         status: 200,
@@ -29,5 +28,8 @@ export default function(req, res) {
       const propertyKeys = properties.map(({ id: [ielvId] }) => ielvId);
       triggerFetchDetails(propertyKeys, req.body.callbackURL);
     })
-    .catch(log.error);
+    .catch(err => {
+      log.error(err);
+      res.status(500).send('Update error - check logs for details');
+    });
 }
