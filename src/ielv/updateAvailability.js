@@ -2,11 +2,18 @@ import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
 import { triggerFetchDetails } from '../api/triggers';
 import { promiseSerial } from '../util/fp';
+import { NOT_FOUND } from '../globals';
+import { getProperty, updateProperty } from './updateProperty';
 
 const MY_CALLBACK_URL = '/ielvUpdateAvailability';
 
 const parseAvailabilityStatus = status =>
   status.toLowerCase() === 'reserved' ? 'reserved' : false;
+
+const checkExistingProperty = async externalId => {
+  const property = await getProperty(externalId);
+  return property === NOT_FOUND;
+};
 
 export const updateCalendarEvents = async (externalId, ielvAvailability) => {
   const EVENT_TITLE = 'IELV';
@@ -63,13 +70,23 @@ export default function(req, res) {
   const externalId = `IELV_${ielvId}`;
   log.noTest(`${externalId} - Availability Update Started`);
 
-  return updateCalendarEvents(externalId, ielvAvailability)
-    .then(() => {
-      log.noTest(`${externalId} - Availability Updated`);
+  return checkExistingProperty(externalId)
+    .then(async notFound => {
+      if (notFound) {
+        log.noTest(`${externalId} - Creating New Property`);
+        await updateProperty(propertyDetails);
+        return `${externalId} - New Property Created`;
+      }
+
+      await updateCalendarEvents(externalId, ielvAvailability);
+      return `${externalId} - Availability Updated`;
+    })
+    .then(message => {
+      log.noTest(message);
       res.send({
         status: 200,
         status_message: 'OK',
-        message: `${externalId} - Availability Updated`,
+        message,
       });
     })
     .catch(err => {

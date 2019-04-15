@@ -2,7 +2,6 @@ import MockAdapter from 'axios-mock-adapter';
 
 import {
   updateProperty,
-  NOT_FOUND,
   getProperty,
   putDescription,
   postProperty,
@@ -16,6 +15,7 @@ import {
 import { myVRClient, gcpClient } from '../../../src/api/client';
 import { syncRates } from '../../../src/ielv/updateRates';
 import { updateCalendarEvents } from '../../../src/ielv/updateAvailability';
+import { NOT_FOUND } from '../../../src/globals';
 
 // Mock JSON Response Data
 import ielvProperty from '../../mockData/ielv/property.json';

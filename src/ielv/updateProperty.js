@@ -9,8 +9,7 @@ import {
 } from '../api/triggers';
 import { promiseSerial, or } from '../util/fp';
 import amenitiesList from './amenities';
-
-export const NOT_FOUND = 'Not Found';
+import { NOT_FOUND } from '../globals';
 
 const MY_CALLBACK_URL = '/ielvUpdateProperty';
 
@@ -32,7 +31,7 @@ export const formatLatLon = locationString =>
     .split('.')
     .map(str => str.slice(0, 10))
     .join('.')
-    .slice(0, 14);
+    .slice(0, 14) || '0.0000000000';
 
 export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
