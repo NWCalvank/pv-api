@@ -1,7 +1,7 @@
 import { TEST_ENV, DEV_ENV } from '../globals';
 
 // alias console methods
-const { log: _log } = console;
+const { log: _log, error: _error } = console;
 
 // Temporarily disable while there's only one module
 // eslint-disable-next-line import/prefer-default-export
@@ -14,6 +14,6 @@ export const log = {
   },
   error: msg => {
     if (TEST_ENV || DEV_ENV) throw new Error(msg);
-    else _log(msg);
+    else _error(msg);
   },
 };

@@ -7,3 +7,5 @@ export const promiseSerial = funcs =>
       promise.then(result => func().then(Array.prototype.concat.bind(result))),
     Promise.resolve([])
   );
+
+export const or = (acc, val) => acc || val;

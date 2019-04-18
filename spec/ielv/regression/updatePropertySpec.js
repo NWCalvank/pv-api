@@ -2,20 +2,20 @@ import MockAdapter from 'axios-mock-adapter';
 
 import {
   updateProperty,
-  NOT_FOUND,
   getProperty,
   putDescription,
   postProperty,
-  updateCalendarEvents,
   getExistingGroups,
   addToGroup,
   conditionallyAddToGroup,
   getExistingBedrooms,
   createMyVRRoom,
   postBedrooms,
-  syncRates,
 } from '../../../src/ielv/updateProperty';
-import { myVRClient } from '../../../src/api/client';
+import { myVRClient, gcpClient } from '../../../src/api/client';
+import { syncRates } from '../../../src/ielv/updateRates';
+import { updateCalendarEvents } from '../../../src/ielv/updateAvailability';
+import { NOT_FOUND } from '../../../src/globals';
 
 // Mock JSON Response Data
 import ielvProperty from '../../mockData/ielv/property.json';
@@ -30,6 +30,17 @@ import myVRCalendarEvents from '../../mockData/myvr/calendar-events.json';
 import myVRAmenities from '../../mockData/myvr/amenities.json';
 
 // Initialize the custom axios instance
+const mockGcpClient = new MockAdapter(gcpClient);
+mockGcpClient
+  .onPost('/ielvFetchDetails')
+  .reply(200)
+  .onPost('/ielvUpdateProperty')
+  .reply(200)
+  .onPost('/ielvUpdateAvailability')
+  .reply(200)
+  .onPost('/ielvUpdateRates')
+  .reply(200);
+
 const MOCK_PROPERTY_ID = 1234;
 const MOCK_PROPERTY_NAME = 'Mock Property';
 const MOCK_PROPERTY_EXTERNAL_ID = `IELV_${MOCK_PROPERTY_ID}`;
@@ -48,13 +59,21 @@ const updatedProperty = {
   bedCount: 1,
   beds: [],
 };
-const otherMembership = {
+const firstMembership = {
   ...myVRPropertyMembership.results[0],
-  key: process.env.MY_VR_GROUP_KEY,
+  key: process.env.MY_VR_GROUP_KEY_1,
+};
+const secondMembership = {
+  ...myVRPropertyMembership.results[0],
+  key: process.env.MY_VR_GROUP_KEY_2,
 };
 const myVRPropertyMembershipWithKey = {
   ...myVRPropertyMembership,
-  results: [...myVRPropertyMembership.results, otherMembership],
+  results: [
+    ...myVRPropertyMembership.results,
+    firstMembership,
+    secondMembership,
+  ],
 };
 
 // Helpers
@@ -133,7 +152,9 @@ describe('updateProperty', () => {
       // END -- setFees API call stubs
 
       // START -- updateCalendarEvents call stubs
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, myVRCalendarEvents)
       .onDelete(`/calendar-events/event1/`)
       .replyOnce(200)
@@ -158,7 +179,7 @@ describe('updateProperty', () => {
       // END -- updateCalendarEvents call stubs
 
       // START -- addPhotos API call stubs all photos exist
-      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`)
       .replyOnce(200, myVRPhotos)
       // END -- addPhotos API call stubs
 
@@ -172,7 +193,7 @@ describe('updateProperty', () => {
       .replyOnce(200, myVRAmenities);
 
     updateProperty(ielvProperty).then(res => {
-      expect(res).toEqual(updatedProperty);
+      expect(res).toEqual(MOCK_PROPERTY_EXTERNAL_ID);
     });
   });
 
@@ -215,7 +236,7 @@ describe('updateProperty', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembership)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200)
@@ -231,7 +252,9 @@ describe('updateProperty', () => {
       // END -- setFees API call stubs
 
       // START -- updateCalendarEvents call stubs
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, { results: [] })
       .onPost(`/calendar-events/`, {
         property: MOCK_PROPERTY_EXTERNAL_ID,
@@ -252,7 +275,7 @@ describe('updateProperty', () => {
       // END -- updateCalendarEvents call stubs
 
       // START -- addPhotos API call stubs no existing photos
-      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(`/photos/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`)
       .replyOnce(200, { results: [] })
       .onPost('/photos/', {
         property: MOCK_PROPERTY_EXTERNAL_ID,
@@ -285,7 +308,7 @@ describe('updateProperty', () => {
       .replyOnce(200);
 
     updateProperty(ielvProperty).then(res => {
-      expect(res).toEqual(updatedProperty);
+      expect(res).toEqual(MOCK_PROPERTY_EXTERNAL_ID);
     });
   });
 });
@@ -378,7 +401,9 @@ describe('updateCalendarEvents', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
 
     mockMyVRClient
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, { results: [] })
       .onPost(`/calendar-events/`, {
         property: MOCK_PROPERTY_EXTERNAL_ID,
@@ -408,7 +433,9 @@ describe('updateCalendarEvents', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
 
     mockMyVRClient
-      .onGet(`/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
+      .onGet(
+        `/calendar-events/?property=${MOCK_PROPERTY_EXTERNAL_ID}&limit=200`
+      )
       .replyOnce(200, myVRCalendarEvents)
       .onDelete(`/calendar-events/event1/`)
       .replyOnce(200)
@@ -454,7 +481,7 @@ describe('addToGroup', () => {
     const mockMyVRClient = new MockAdapter(myVRClient);
     mockMyVRClient
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200);
@@ -469,13 +496,18 @@ describe('conditionallyAddToGroup', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembership)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
+        property: MOCK_PROPERTY_EXTERNAL_ID,
+      })
+      .replyOnce(200, 'Post Response')
+      .onPost(`/property-memberships/`, {
+        group: process.env.MY_VR_GROUP_KEY_2,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200, 'Post Response');
 
     conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
-      expect(data).toEqual('Post Response');
+      data.forEach(response => expect(response).toEqual('Post Response'));
     });
   });
 
@@ -485,13 +517,13 @@ describe('conditionallyAddToGroup', () => {
       .onGet(`/property-memberships/?property=${MOCK_PROPERTY_EXTERNAL_ID}`)
       .replyOnce(200, myVRPropertyMembershipWithKey)
       .onPost(`/property-memberships/`, {
-        group: process.env.MY_VR_GROUP_KEY,
+        group: process.env.MY_VR_GROUP_KEY_1,
         property: MOCK_PROPERTY_EXTERNAL_ID,
       })
       .replyOnce(200, 'Post Response');
 
     conditionallyAddToGroup(MOCK_PROPERTY_EXTERNAL_ID).then(data => {
-      expect(data).toBeUndefined();
+      data.forEach(response => expect(response).toBeUndefined());
     });
   });
 });

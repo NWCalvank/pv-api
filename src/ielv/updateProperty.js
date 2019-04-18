@@ -1,9 +1,17 @@
+import path from 'path';
+
 import { myVRClient } from '../api/client';
 import { log } from '../util/logger';
-import { promiseSerial } from '../util/fp';
+import {
+  triggerFetchDetails,
+  triggerUpdateAvailability,
+  triggerUpdateRates,
+} from '../api/triggers';
+import { promiseSerial, or } from '../util/fp';
 import amenitiesList from './amenities';
+import { NOT_FOUND } from '../globals';
 
-export const NOT_FOUND = 'Not Found';
+const MY_CALLBACK_URL = '/ielvUpdateProperty';
 
 export const seasonalMinimum = str => {
   const mapping = {
@@ -23,7 +31,7 @@ export const formatLatLon = locationString =>
     .split('.')
     .map(str => str.slice(0, 10))
     .join('.')
-    .slice(0, 14);
+    .slice(0, 14) || '0.0000000000';
 
 export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
@@ -67,7 +75,7 @@ export const sortRates = prices =>
     )
     .sort((a, b) => a - b);
 
-const htmlStyle = (items, title) => `
+const htmlStyle = (items = [], title) => `
 <br/>
 
 <div><strong>${title}</strong></div>
@@ -143,55 +151,16 @@ export const postProperty = payload =>
     .then(({ data }) => data)
     .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
 
-export const updateCalendarEvents = async (externalId, ielvAvailability) => {
-  const EVENT_TITLE = 'IELV';
-
-  const existingCalendarEvents = await myVRClient
-    .get(`/calendar-events/?property=${externalId}`)
-    .then(({ data }) => data)
-    .then(({ results }) => results)
-    .catch(log.error);
-
-  // Delete existing IELV events
-  await promiseSerial(
-    existingCalendarEvents
-      .filter(({ title }) => title === EVENT_TITLE)
-      .map(({ key }) => () =>
-        myVRClient.delete(`/calendar-events/${key}/`).catch(log.error)
-      )
-  ).catch(log.error);
-
-  // Add latest IELV events
-  return promiseSerial(
-    ielvAvailability.period
-      .filter(({ status: [statusString] }) =>
-        parseAvailabilityStatus(statusString)
-      )
-      .map(({ status: [statusString], $: { from, to } }) => () =>
-        myVRClient
-          .post('/calendar-events/', {
-            property: externalId,
-            startDate: from,
-            endDate: to,
-            status: parseAvailabilityStatus(statusString),
-            title: EVENT_TITLE,
-          })
-          .then(({ data }) => data)
-          .catch(log.error)
-      )
-  ).catch(log.error);
-};
-
 export const getExistingGroups = externalId =>
   myVRClient
     .get(`/property-memberships/?property=${externalId}`)
     .then(({ data }) => data)
     .catch(log.error);
 
-export const addToGroup = externalId =>
+export const addToGroup = (externalId, group) =>
   myVRClient
     .post(`/property-memberships/`, {
-      group: process.env.MY_VR_GROUP_KEY,
+      group,
       property: externalId,
     })
     .then(({ data }) => data)
@@ -202,9 +171,14 @@ export const conditionallyAddToGroup = async externalId => {
 
   const existingGroupKeys = existingGroups.results.map(({ key }) => key);
 
-  return existingGroupKeys.includes(process.env.MY_VR_GROUP_KEY)
-    ? Promise.resolve()
-    : addToGroup(externalId);
+  return Promise.all(
+    [process.env.MY_VR_GROUP_KEY_1, process.env.MY_VR_GROUP_KEY_2].map(
+      group =>
+        existingGroupKeys.includes(group)
+          ? Promise.resolve()
+          : addToGroup(externalId, group)
+    )
+  );
 };
 
 export const getExistingBedrooms = externalId =>
@@ -247,62 +221,6 @@ export const postBedrooms = async (externalId, ielvRooms) => {
   // Create all rooms from IELV Data
   return promiseSerial(ielvBedrooms.map(createMyVRRoom(externalId))).catch(
     log.error
-  );
-};
-
-export const syncRates = async (externalId, ielvPrices) => {
-  // GET existing rates
-  const existingRates = await myVRClient
-    .get(`/rates/?property=${externalId}`)
-    .then(({ data }) => data)
-    .then(({ results }) => results)
-    .catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
-
-  // DELETE existing rates
-  await promiseSerial(
-    existingRates.map(({ key }) => () => myVRClient.delete(`/rates/${key}/`))
-  ).catch(({ response }) => (response.status === 404 ? NOT_FOUND : response));
-
-  const [lowestRate] = sortRates(ielvPrices);
-
-  // POST base rate
-  myVRClient
-    .post(`/rates/`, {
-      // required
-      property: externalId,
-      // relevant payload
-      baseRate: true,
-      minStay: 5,
-      repeat: false,
-      nightly: Math.round(lowestRate / 7),
-      weekendNight: Math.round(lowestRate / 7),
-    })
-    .catch(log.error);
-
-  // POST all current rates
-  return promiseSerial(
-    ielvPrices.price.map(({ $, bedroom_count: bedroomCount }) => () => {
-      const { name: priceName, to: endDate, from: startDate } = $;
-      const { _: priceString } = bedroomCount[bedroomCount.length - 1];
-      const amountInCents =
-        Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100;
-
-      return myVRClient
-        .post(`/rates/`, {
-          // required
-          property: externalId,
-          // relevant payload
-          baseRate: false,
-          name: priceName,
-          startDate,
-          endDate,
-          minStay: seasonalMinimum(priceName),
-          repeat: false,
-          nightly: Math.round(amountInCents / 7),
-          weekendNight: Math.round(amountInCents / 7),
-        })
-        .catch(log.error);
-    })
   );
 };
 
@@ -382,12 +300,13 @@ const setFees = async externalId => {
 const addPhotos = async (externalId, ielvPhotos) => {
   // Get existing photos
   const existingPhotos = await myVRClient
-    .get(`/photos/?property=${externalId}`)
+    .get(`/photos/?property=${externalId}&limit=200`)
     .then(({ data }) => data)
     .catch(log.error);
 
-  const parseFilename = path => {
-    const filename = path.match(/([^/]+$)/)[0];
+  // Normalize filenames
+  const parseFilename = _path => {
+    const filename = path.parse(_path).name;
     return filename ? filename.toLowerCase().replace(/-/g, '_') : '';
   };
 
@@ -396,10 +315,16 @@ const addPhotos = async (externalId, ielvPhotos) => {
     parseFilename(downloadUrl)
   );
 
+  // Handle incremented filenames (ie. foo.jpg, foo1.jpg)
+  const incrementedMatch = sourceUrl =>
+    existingFilenames
+      .map(name => name.includes(parseFilename(sourceUrl)))
+      .reduce(or, false);
+
   // Add New Photos
   return promiseSerial(
     ielvPhotos.photo.map(({ _: sourceUrl }) => () =>
-      existingFilenames.includes(parseFilename(sourceUrl))
+      existingFilenames.includes(sourceUrl) || incrementedMatch(sourceUrl)
         ? Promise.resolve()
         : myVRClient
             .post('/photos/', {
@@ -439,6 +364,7 @@ export const updateProperty = async ({
   id: [ielvId],
   title: [name],
   description: [ielvDescription],
+  bathrooms: [ielvBathrooms],
   availability: [ielvAvailability],
   locations: ielvLocations,
   pools: ielvPools,
@@ -460,6 +386,7 @@ export const updateProperty = async ({
   const property = await getProperty(externalId);
 
   // POST new property or PUT existing
+  log.noTest(`creating property ${externalId}`);
   const method = property === NOT_FOUND ? postProperty : putDescription;
   await method({
     name,
@@ -473,6 +400,7 @@ export const updateProperty = async ({
       restrictions: ielvRestrictions,
       rooms: ielvRooms,
     }),
+    bathrooms: Number(ielvBathrooms),
     lat: formatLatLon(ielvLatitude),
     lon: formatLatLon(ielvLongitude),
     addressOne: name,
@@ -485,47 +413,71 @@ export const updateProperty = async ({
 
   // API limitations require that these be sequential
   // Update availability
-  await updateCalendarEvents(externalId, ielvAvailability);
+  log.noTest(`updateCalendarEvents ${externalId}`);
+  await triggerUpdateAvailability()({
+    id: [ielvId],
+    availability: [ielvAvailability],
+  });
 
   // Add Property to Group if needed
+  log.noTest(`conditionallyAddToGroup ${externalId}`);
   await conditionallyAddToGroup(externalId);
 
   // POST new bedrooms
+  log.noTest(`postBedrooms ${externalId}`);
   await postBedrooms(externalId, ielvRooms);
 
   // Sync rates
-  await syncRates(externalId, ielvPrices);
+  log.noTest(`syncRates ${externalId}`);
+  await triggerUpdateRates()({
+    id: [ielvId],
+    prices: [ielvPrices],
+  });
 
   // Set standard fees
+  log.noTest(`setFees ${externalId}`);
   await setFees(externalId);
 
   // Add new photos
+  log.noTest(`addPhotos ${externalId}`);
   await addPhotos(externalId, ielvPhotos);
 
   // Set Amenities
+  log.noTest(`setAmenities ${externalId}`);
   await setAmenities(externalId);
 
   log.noTest(`${externalId} - Updates Complete...`);
-  return getProperty(externalId);
+  return externalId;
 };
 
+// Accepts an object of {propertyKeys, propertyDetails} where propertyKeys is
+// the list of properties not yet updated
 export default function(req, res) {
   if (req.header('Authorization') !== process.env.MY_VR_API_KEY) {
     const reason = 'Invalid Authorization header';
-    // HTTP Response for incoming request
-    res.send({ status: 401, status_message: 'Unauthorized', message: reason });
+    res.status(401).send(reason);
 
-    // Promise response for function invocation
     return Promise.reject(new Error(reason));
   }
 
-  // HTTP Response for incoming request
-  res.send({
-    status: 200,
-    status_message: 'OK',
-    message: 'Updating property function successfully invoked',
-  });
+  const { propertyDetails, propertyKeys } = req.body;
 
   // Promise response for function invocation
-  return updateProperty(req.body).catch(log.error);
+  return updateProperty(propertyDetails)
+    .then(externalId => {
+      res.send({
+        status: 200,
+        status_message: 'OK',
+        message: `${externalId} - Property Updated`,
+      });
+    })
+    .catch(err => {
+      log.error(err);
+      res.status(500).send('Update error - check logs for details');
+    })
+    .then(() => {
+      if (propertyKeys) {
+        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
+      }
+    });
 }
