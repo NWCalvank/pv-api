@@ -31,7 +31,7 @@ export const formatLatLon = locationString =>
     .split('.')
     .map(str => str.slice(0, 10))
     .join('.')
-    .slice(0, 14) || '0.0000000000';
+    .slice(0, 14);
 
 export const parseBedSize = rawBedSize => {
   const bedSize = rawBedSize.toLowerCase();
@@ -401,8 +401,8 @@ export const updateProperty = async ({
       rooms: ielvRooms,
     }),
     bathrooms: Number(ielvBathrooms),
-    lat: formatLatLon(ielvLatitude),
-    lon: formatLatLon(ielvLongitude),
+    lat: formatLatLon(ielvLatitude) || '17.8987771',
+    lon: formatLatLon(ielvLongitude) || '-62.8331287',
     addressOne: name,
     city: ielvLocations[0] && ielvLocations[0].location[0],
     postalCode: '97700',
