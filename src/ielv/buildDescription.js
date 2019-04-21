@@ -3,14 +3,21 @@ ${items.length > 0 ? `<br/><div><strong>${title}</strong></div>` : ''}
 <div>
 <ul>${items.length > 0 ? '<li>' : ''}
 ${items
-  .map(obj => obj[title.toLowerCase()].join('</li><li>'))
+  .map(
+    obj =>
+      (obj[title.toLowerCase()] &&
+        obj[title.toLowerCase()].join('</li><li>')) ||
+      ''
+  )
   .join('</li><li>')}
 ${items.length > 0 ? '</li>' : ''}</ul>
 </div>
 `;
 
 const htmlNoList = (items = [], title) => `
-${items.map(obj => obj[title.toLowerCase()].join('<br>')).join('')}
+${items
+  .map(obj => obj[title.toLowerCase()] && obj[title.toLowerCase()].join('<br>'))
+  .join('') || ''}
 `;
 
 const bookWithUsHTML = `
