@@ -1,40 +1,162 @@
-<div><strong>Summary</strong></div>
+<div><b>WHY BOOK YOUR STAY WITH US?&nbsp;</b></div><div><b><br></b><ul><li>Private check-in </li><li>Pre-trip planning: airport transfers, grocery pre-stocking, activity suggestions</li><li>Fresh Linens, Towels, Daily Housekeeping (except Sundays)&nbsp;</li><li>English speaking concierge service and on location team </li><li>Free Wifi</li><li>Points Program (Inquire about our PersonalVillas rewards program if you visit often!)</li></ul></div><div><strong><br></strong></div>
+
+
+
+<div>
+<b>Mock Property,</b>
+<strong> </strong>
+FooTown&nbsp;
+</div>
+
+
+<div><br></div>
+
 <div>Remind me to thank John for a lovely weekend. What do they got in there? King Kong? Hey, take a look at the earthlings. Goodbye! Yes, Yes, without the oops! Yeah, but John, if The Pirates of the Caribbean breaks down, the pirates don’t eat the tourists.</div>
 
-<br/>
+</div><div><br></div><div><b>AMENITIES:&nbsp;</b></div><div>
 
-<div><strong>Location</strong></div>
-<div>
-<ul><li>
-FooTown</li><li>Nearest beach: FooBeach</li><li>BarCity: 5 min.</li><li>Restaurant: 5 min.</li><li>Supermarket: 5 min.</li><li>Airport: 10 min.
-</li></ul>
-</div>
+fitness<br>TV<br>DVD<br>Wi-Fi<br>CD<br>VCR<br>French satellite<br>US satellite<br>iron and ironing board<br>gas barbecue<br>* Fitness Room: stepper, treadmill, shots, A/C.
 
 
-<br/>
-
-<div><strong>Facility</strong></div>
-<div>
-<ul><li>
-fitness</li><li>TV</li><li>DVD</li><li>Wi-Fi</li><li>CD</li><li>VCR</li><li>French satellite</li><li>US satellite</li><li>iron and ironing board</li><li>gas barbecue</li><li>* Fitness Room: stepper, treadmill, shots, A/C.
-</li></ul>
-</div>
-
-
-<br/>
-
-<div><strong>Service</strong></div>
-<div>
-<ul><li>
-housekeeper every day except Sunday and public holidays</li><li>pool maintenance</li><li>gardener</li><li>household linen</li><li>bath towels</li><li>beach towels</li><li>* 2019-2020
+housekeeper every day except Sunday and public holidays<br>pool maintenance<br>gardener<br>household linen<br>bath towels<br>beach towels<br>* 2019-2020
 - Continental breakfast included every days excepted Sunday and Public Holidays
-</li></ul>
+
+</div>
+
+<div>Pools</div>
+<div>
+20 x 40 ft., heated<br>13.1 x 59.1 ft., heated
 </div>
 
 
-<br/>
 
-<div><strong>Restriction</strong></div>
+<div><br></div><div><b>BEDROOMS:&nbsp;</b></div>
+
+Bedroom 1<br>
+
+
+
+view: Garden<br>
+
+
+
+bed_size: King 6.56 × 6.56<br>
+
+
+
+
+
+
+
+equipment: air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower<br>
+
+
+
+other:  2 dressings, iPod Dock, Dish Network<br>
+
+
+
+Bedroom 2<br>
+
+
+
+view: Ocean<br>
+
+
+
+bed_size: Queen 6.56 × 6.56<br>
+
+
+
+
+
+
+
+equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower<br>
+
+
+
+other:  Separated bungalow, Private terrace, I pod dock<br>
+
+
+
+Bedroom 3<br>
+
+
+
+view: Ocean<br>
+
+
+
+bed_size: Twin 6.56 × 6.56<br>
+
+
+
+
+
+
+
+equipment: air conditioning, fan, mosquito net, safe, bathroom with shower<br>
+
+
+
+other:  iPod Dock, Windows looking into the pool<br>
+
+
+
+Bedroom 4<br>
+
+
+
+view: Garden<br>
+
+
+
+bed_size: King or 2 Twins beds 6.56 × 6.56<br>
+
+
+
+
+
+
+
+equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, bathroom with shower<br>
+
+
+
+
+
+
+
+
+
+<div><br></div><div><b>Kitchen&nbsp;</b></div>
+
+
+
+
+
+
+
+
+
+
+
+equipped_for: 10 people<br>
+
+
+
+equipment: fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher<br>
+
+
+
+other:  Ice maker, Nespresso coffee machine<br>
+
+
+
+
+
+<br/><div><strong>Restriction</strong></div>
 <div>
 <ul><li>
 Children min age:12 years old</li><li>Pets: unauthorized</li><li>* Children under request.
@@ -42,24 +164,32 @@ Children min age:12 years old</li><li>Pets: unauthorized</li><li>* Children unde
 </div>
 
 
-<br/>
 
-<div><strong>Pools</strong></div>
-<div>
-<ul><li>
-20 x 40 ft., heated</li><li>13.1 x 59.1 ft., heated
-</li></ul>
-</div>
+<div><strong>Living room</strong></div>
+<ul>
 
-<br />
+<li>
+view: Ocean<br>
+</li>
 
-<div>
-<div><strong>Living room </strong></div><ul><li>view: Ocean</li><li>equipment: fan</li><li>other: * iPod Dock</li></ul></div><br/><div><div><strong>Kitchen </strong></div><ul><li>equipped_for: 10 people</li><li>equipment: fan, microwave, coffee machine, espresso machine, toaster, blender, dishwasher</li><li>other: * Ice maker
-* Nespresso coffee machine</li></ul></div><br/><div><div><strong>Bedroom </strong></div><ul><li>view: Garden</li><li>bed_size: King 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, US satellite, bathroom with shower</li><li>other: * 2 dressings
-* iPod Dock
-* Dish Network</li></ul></div><br/><div><div><strong>Bedroom 2</strong></div><ul><li>view: Ocean</li><li>bed_size: Queen 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, outside shower, bathroom with shower</li><li>other: * Separated bungalow
-* Private terrace
 
-* I pod dock</li></ul></div><br/><div><div><strong>Bedroom 3</strong></div><ul><li>view: Ocean</li><li>bed_size: Twin 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, bathroom with shower</li><li>other: * iPod Dock
-* Windows looking into the pool</li></ul></div><br/><div><div><strong>Bedroom 4</strong></div><ul><li>view: Garden</li><li>bed_size: King or 2 Twins beds 6.56 × 6.56</li><li>equipment: air conditioning, fan, mosquito net, safe, TV, French satellite, US satellite, DVD, bathroom with shower</li>
-<div>
+
+
+
+
+
+
+
+<li>
+equipment: fan<br>
+</li>
+
+<li>
+other:  iPod Dock<br>
+</li>
+</ul>
+
+
+<div><b>Location</b><br>
+
+FooTown<br>Nearest beach: FooBeach<br>BarCity: 5 min.<br>Restaurant: 5 min.<br>Supermarket: 5 min.<br>Airport: 10 min.

@@ -18,6 +18,7 @@ const expectedHTML = fs.readFileSync(
 );
 
 // Resulting Mock Data
+const [name] = ielvProperty.title;
 const [ielvDescription] = ielvProperty.description;
 const ielvLocations = ielvProperty.locations;
 const ielvPools = ielvProperty.pools;
@@ -25,6 +26,11 @@ const ielvFacilities = ielvProperty.facilities;
 const ielvServices = ielvProperty.services;
 const ielvRestrictions = ielvProperty.restrictions;
 const ielvRooms = ielvProperty.rooms[0].room;
+const ielvBedrooms = ielvRooms.filter(({ $: { type } }) => type === 'Bedroom');
+const ielvKitchen = ielvRooms.filter(({ $: { type } }) => type === 'Kitchen');
+const ielvLivingRoom = ielvRooms.filter(({ $: { type } }) =>
+  type.toLowerCase().includes('living')
+);
 
 describe('seasonalMinimum', () => {
   it('should parse the rate name string and return the expected minimum stay', () => {
@@ -64,13 +70,16 @@ describe('parseAvailabilityStatus', () => {
 
 describe('buildDescription', () => {
   const builtDescription = buildDescription({
+    name,
     description: ielvDescription,
     locations: ielvLocations,
     pools: ielvPools,
     facilities: ielvFacilities,
     services: ielvServices,
     restrictions: ielvRestrictions,
-    rooms: ielvRooms,
+    bedrooms: ielvBedrooms,
+    kitchen: ielvKitchen,
+    livingRoom: ielvLivingRoom,
   });
 
   it('should contain the IELV description', () => {
@@ -114,16 +123,47 @@ describe('buildDescription', () => {
     );
   });
 
-  it('should contain the IELV rooms', () => {
-    expect(builtDescription).toContain(ielvRooms[0].view[0]);
-    ielvRooms.forEach(room =>
-      Object.entries(room).forEach(
-        ([key, value]) =>
-          key === '$'
-            ? expect(builtDescription).toContain(value.type) &&
-              expect(builtDescription).toContain(value.index)
-            : expect(builtDescription).toContain(value[0])
-      )
+  it('should contain the IELV bedrooms', () => {
+    expect(builtDescription).toContain(ielvBedrooms[0].view[0]);
+    ielvBedrooms.forEach(room =>
+      Object.entries(room).forEach(([key, value]) => {
+        if (key === '$') {
+          expect(builtDescription).toContain(value.type);
+          expect(builtDescription).toContain(value.index);
+        } else if (key === 'other') {
+          expect(builtDescription).toContain(
+            value[0]
+              .replace(/\n/g, ' ')
+              .replace(/\s\s\*/g, ',')
+              .replace(/\s\*/g, ',')
+              .replace(/\*/g, '')
+          );
+        } else {
+          expect(builtDescription).toContain(value[0]);
+        }
+      })
+    );
+  });
+
+  it('should contain the IELV living room', () => {
+    expect(builtDescription).toContain(ielvLivingRoom[0].view[0]);
+    ielvLivingRoom.forEach(room =>
+      Object.entries(room).forEach(([key, value]) => {
+        if (key === '$') {
+          expect(builtDescription).toContain(value.type);
+          expect(builtDescription).toContain(value.index);
+        } else if (key === 'other') {
+          expect(builtDescription).toContain(
+            value[0]
+              .replace(/\n/g, ' ')
+              .replace(/\s\s\*/g, ',')
+              .replace(/\s\*/g, ',')
+              .replace(/\*/g, '')
+          );
+        } else {
+          expect(builtDescription).toContain(value[0]);
+        }
+      })
     );
   });
 
