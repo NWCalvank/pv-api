@@ -131,7 +131,9 @@ export const getExistingBedrooms = externalId =>
     .then(({ results }) => results.filter(({ type }) => type === 'bedroom'))
     .catch(log.error);
 
-export const createMyVRRoom = externalId => ({ bed_size: [bedSize] }) => () =>
+export const createMyVRRoom = externalId => ({
+  bed_size: [bedSize] = [''],
+}) => () =>
   myVRClient
     .post(`/rooms/`, {
       // required
