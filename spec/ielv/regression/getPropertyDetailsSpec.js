@@ -1,11 +1,11 @@
 import fs from 'fs';
 import MockAdapter from 'axios-mock-adapter';
 
-import getPropertyDetails from '../../src/ielv/getPropertyDetails';
-import { ielvClient } from '../../src/api/client';
+import getPropertyDetails from '../../../src/ielv/getPropertyDetails';
+import { ielvClient } from '../../../src/api/client';
 
 // Mock JSON Response Data
-import ielvProperty from '../mockData/ielv/property.json';
+import ielvProperty from '../../mockData/ielv/property.json';
 
 // Mock XML Response Data
 const ielvGetPropertyDetailsResponse = fs.readFileSync(
