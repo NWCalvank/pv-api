@@ -24,17 +24,20 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
     .then(({ results }) => results)
     .catch(log.error);
 
-  // Delete existing IELV events
-  await promiseSerial(
+  const eventsToDelete =
+    existingCalendarEvents &&
     existingCalendarEvents
       .filter(({ title }) => title === EVENT_TITLE)
       .map(({ key }) => () =>
         myVRClient.delete(`/calendar-events/${key}/`).catch(log.error)
-      )
-  ).catch(log.error);
+      );
 
-  // Add latest IELV events
-  return promiseSerial(
+  // Delete existing IELV events
+  await promiseSerial(eventsToDelete || []).catch(log.error);
+
+  const newEvents =
+    ielvAvailability &&
+    ielvAvailability.period &&
     ielvAvailability.period
       .filter(({ status: [statusString] }) =>
         parseAvailabilityStatus(statusString)
@@ -50,8 +53,10 @@ export const updateCalendarEvents = async (externalId, ielvAvailability) => {
           })
           .then(({ data }) => data)
           .catch(log.error)
-      )
-  ).catch(log.error);
+      );
+
+  // Add latest IELV events
+  return promiseSerial(newEvents || []).catch(log.error);
 };
 
 export default function(req, res) {

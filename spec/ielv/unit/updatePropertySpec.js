@@ -1,10 +1,10 @@
 import {
   parseBedSize,
   parseAvailabilityStatus,
-  sortRates,
   seasonalMinimum,
   formatLatLon,
 } from '../../../src/ielv/updateProperty';
+import { sortRates } from '../../../src/ielv/updateRates';
 
 describe('seasonalMinimum', () => {
   it('should parse the rate name string and return the expected minimum stay', () => {

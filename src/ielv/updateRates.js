@@ -19,7 +19,7 @@ const seasonalMinimum = str => {
   return mapping[key];
 };
 
-const sortRates = prices =>
+export const sortRates = prices =>
   prices.price
     .reduce(
       (acc, { bedroom_count: bedroomCount }) => [
@@ -33,7 +33,12 @@ const sortRates = prices =>
     )
     .sort((a, b) => a - b);
 
-export const syncRates = async (externalId, ielvPrices) => {
+export const syncRates = async (externalId, ielvPrices = { price: [] }) => {
+  if (ielvPrices === null) {
+    // Safe exit
+    return Promise.resolve('No prices provided');
+  }
+
   // GET existing rates
   const existingRates = await myVRClient
     .get(`/rates/?property=${externalId}`)

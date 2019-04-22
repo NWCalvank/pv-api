@@ -62,20 +62,6 @@ export const parseBedSize = rawBedSize => {
 export const parseAvailabilityStatus = status =>
   status.toLowerCase() === 'reserved' ? 'reserved' : false;
 
-export const sortRates = prices =>
-  prices.price
-    .reduce(
-      (acc, { bedroom_count: bedroomCount }) => [
-        ...acc,
-        ...bedroomCount.map(
-          ({ _: priceString }) =>
-            Number(priceString.replace(/\$\s/, '').replace(',', '')) * 100
-        ),
-      ],
-      []
-    )
-    .sort((a, b) => a - b);
-
 export const getProperty = externalId =>
   myVRClient
     .get(`/properties/${externalId}/`)
@@ -306,21 +292,21 @@ const setAmenities = async externalId => {
 };
 
 export const updateProperty = async ({
-  id: [ielvId],
-  title: [name],
-  description: [ielvDescription],
-  bathrooms: [ielvBathrooms],
-  availability: [ielvAvailability],
-  locations: ielvLocations,
-  pools: ielvPools,
-  facilities: ielvFacilities,
-  services: ielvServices,
-  restrictions: ielvRestrictions,
-  photos: [ielvPhotos],
+  id: [ielvId] = [''],
+  title: [name] = [''],
+  description: [ielvDescription] = [''],
+  bathrooms: [ielvBathrooms] = [''],
+  availability: [ielvAvailability = {}] = [],
+  locations: ielvLocations = [],
+  pools: ielvPools = [],
+  facilities: ielvFacilities = [],
+  services: ielvServices = [],
+  restrictions: ielvRestrictions = [],
+  photos: [ielvPhotos] = [],
   rooms: [{ room: ielvRooms }],
-  latitude: [ielvLatitude],
-  longitude: [ielvLongitude],
-  prices: [ielvPrices],
+  latitude: [ielvLatitude] = [''],
+  longitude: [ielvLongitude] = [''],
+  prices: [ielvPrices] = [],
 }) => {
   const externalId = `IELV_${ielvId}`;
   const getRoomType = roomType =>
