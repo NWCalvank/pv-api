@@ -69,10 +69,27 @@ export default function(req, res) {
 
   const { propertyDetails, propertyKeys } = req.body;
   const {
-    id: [ielvId],
-    availability: [ielvAvailability],
+    id: [ielvId] = [],
+    availability: [ielvAvailability] = [],
   } = propertyDetails;
   const externalId = `IELV_${ielvId}`;
+
+  if (ielvAvailability === undefined) {
+    // Safe exit
+    const message = 'No availability provided';
+    log.noTest(`${externalId} - ${message}`);
+    res.send({
+      status: 200,
+      status_message: 'OK',
+      message,
+    });
+    return Promise.resolve(message).then(() => {
+      if (propertyKeys) {
+        triggerFetchDetails(propertyKeys, MY_CALLBACK_URL);
+      }
+    });
+  }
+
   log.noTest(`${externalId} - Availability Update Started`);
 
   return checkExistingProperty(externalId)
