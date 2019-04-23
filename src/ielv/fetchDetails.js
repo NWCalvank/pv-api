@@ -28,7 +28,7 @@ export default function(req, res) {
   }
 
   const {
-    propertyKeys: [propertyKey, ...otherPropertyKeys],
+    propertyKeys: [propertyKey, ...otherPropertyKeys] = [],
     callbackURL,
   } = req.body;
 
@@ -42,7 +42,7 @@ export default function(req, res) {
             message: `IELV_${propertyKey} - Details Fetched`,
           });
 
-          gcpClient.post(callbackURL, {
+          return gcpClient.post(callbackURL, {
             propertyDetails,
             propertyKeys: otherPropertyKeys,
           });
