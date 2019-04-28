@@ -1,6 +1,7 @@
 import { log } from '../util/logger';
 import { triggerFetchDetails } from '../api/triggers';
 
+import getAllProperties from './getAllProperties';
 import getPropertyDetails from './getPropertyDetails';
 import { gcpClient } from '../api/client';
 
@@ -27,19 +28,54 @@ export default function(req, res) {
     return Promise.reject(new Error(reason));
   }
 
+  // TODO: Remove after done debugging
+  log.noTest(req.body);
+
+  // Catch invalid arg before destructuring
+  if (req.body.propertyKeys === undefined) {
+    log.noTest('No property keys provided. Restarting...');
+
+    return getAllProperties()
+      .then(properties => {
+        res.send({
+          status: 200,
+          status_message: 'OK',
+          message: 'All properties fetched. Updates initialized.',
+        });
+
+        // Restart from the end of the list
+        const propertyKeys = properties.map(({ id: [ielvId] }) => ielvId);
+        triggerFetchDetails(
+          propertyKeys.reverse(),
+          req.body.callbackURL || '/ielvUpdateAvailability'
+        );
+      })
+      .catch(err => {
+        log.error(err);
+        res.status(500).send('Update error - check logs for details');
+      });
+  }
+
+  // TODO: Remove after debugging
+  log.noTest(req.body);
+
   const {
-    propertyKeys: [propertyKey, ...otherPropertyKeys] = [],
+    propertyKeys: [propertyKey, ...otherPropertyKeys],
     callbackURL,
   } = req.body;
+
+  log.noTest(`IELV_${propertyKey} - Fetching Details`);
 
   return propertyKey === undefined
     ? logComplete(res, 'All updates complete...')
     : getPropertyDetails(propertyKey)
         .then(propertyDetails => {
+          const message = `IELV_${propertyKey} - Details Fetched`;
+          log.noTest(message);
           res.send({
             status: 200,
             status_message: 'OK',
-            message: `IELV_${propertyKey} - Details Fetched`,
+            message,
           });
 
           return gcpClient.post(callbackURL, {
